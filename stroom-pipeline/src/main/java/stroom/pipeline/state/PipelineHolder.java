@@ -18,19 +18,19 @@ package stroom.pipeline.state;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.util.spring.StroomScope;
 
 @Component
 @Scope(value = StroomScope.TASK)
 public class PipelineHolder {
-    private PipelineEntity pipelineEntity;
+    private PipelineDocument pipelineDocument;
 
-    public PipelineEntity getPipeline() {
-        return pipelineEntity;
+    public PipelineDocument getPipeline() {
+        return pipelineDocument;
     }
 
-    public void setPipeline(final PipelineEntity pipelineEntity) {
-        this.pipelineEntity = pipelineEntity;
+    public void setPipeline(final PipelineDocument pipelineDocument) {
+        this.pipelineDocument = pipelineDocument;
     }
 }

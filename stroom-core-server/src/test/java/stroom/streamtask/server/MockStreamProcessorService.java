@@ -43,7 +43,7 @@ public class MockStreamProcessorService extends MockEntityService<StreamProcesso
         if (!super.isMatch(criteria, entity)) {
             return false;
         }
-        return criteria.obtainPipelineIdSet().isMatch(entity.getPipeline());
+        return criteria.obtainPipelineSet().isMatch(entity.getPipelineUuid());
     }
 
     @Override

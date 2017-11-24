@@ -26,7 +26,7 @@ import stroom.pipeline.server.factory.Pipeline;
 import stroom.pipeline.server.factory.PipelineDataCache;
 import stroom.pipeline.server.factory.PipelineFactory;
 import stroom.pipeline.server.parser.CombinedParser;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.pipeline.shared.TextConverter;
 import stroom.pipeline.shared.TextConverter.TextConverterType;
 import stroom.pipeline.shared.XSLT;
@@ -66,7 +66,7 @@ public class TestXMLHttpBlankTokenFix extends AbstractProcessIntegrationTest {
     @Resource
     private XSLTService xsltService;
     @Resource
-    private PipelineService pipelineService;
+    private PipelineDocumentService pipelineDocumentService;
     @Resource
     private PipelineMarshaller pipelineMarshaller;
     @Resource
@@ -110,16 +110,16 @@ public class TestXMLHttpBlankTokenFix extends AbstractProcessIntegrationTest {
         errorReceiver.setErrorReceiver(loggingErrorReceiver);
 
         // Create the pipeline.
-        PipelineEntity pipelineEntity = PipelineTestUtil.createTestPipeline(pipelineService,
+        PipelineDocument pipelineDocument = PipelineTestUtil.createTestPipeline(pipelineDocumentService,
                 StroomPipelineTestFileUtil.getString(PIPELINE));
-        pipelineEntity.getPipelineData().addProperty(
+        pipelineDocument.getPipelineData().addProperty(
                 PipelineDataUtil.createProperty(CombinedParser.DEFAULT_NAME, "textConverter", textConverter));
-        pipelineEntity.getPipelineData()
+        pipelineDocument.getPipelineData()
                 .addProperty(PipelineDataUtil.createProperty("translationFilter", "xslt", xslt));
-        pipelineEntity = pipelineService.save(pipelineEntity);
+        pipelineDocument = pipelineDocumentService.save(pipelineDocument);
 
         // Create the parser.
-        final PipelineData pipelineData = pipelineDataCache.get(pipelineEntity);
+        final PipelineData pipelineData = pipelineDataCache.get(pipelineDocument);
         final Pipeline pipeline = pipelineFactory.create(pipelineData);
 
         feedHolder.setFeed(new Feed());

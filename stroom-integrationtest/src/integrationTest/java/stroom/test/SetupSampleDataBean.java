@@ -39,9 +39,9 @@ import stroom.node.server.VolumeService;
 import stroom.node.shared.FindVolumeCriteria;
 import stroom.node.shared.Node;
 import stroom.node.shared.Volume;
-import stroom.pipeline.server.PipelineService;
-import stroom.pipeline.shared.FindPipelineEntityCriteria;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.server.PipelineDocumentService;
+import stroom.pipeline.shared.FindPipelineDocumentCriteria;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.query.api.v2.ExpressionOperator;
 import stroom.query.api.v2.ExpressionTerm;
 import stroom.security.server.DBRealm;
@@ -114,7 +114,7 @@ public final class SetupSampleDataBean {
     @Resource
     private StreamProcessorService streamProcessorService;
     @Resource
-    private PipelineService pipelineService;
+    private PipelineDocumentService pipelineDocumentService;
     @Resource
     private VolumeService volumeService;
     @Resource
@@ -184,15 +184,15 @@ public final class SetupSampleDataBean {
             indexService.save(index);
 
             // Find the pipeline for this index.
-            final BaseResultList<PipelineEntity> pipelines = pipelineService
-                    .find(new FindPipelineEntityCriteria(index.getName()));
+            final BaseResultList<PipelineDocument> pipelines = pipelineDocumentService
+                    .find(new FindPipelineDocumentCriteria(index.getName()));
 
             if (pipelines == null || pipelines.size() == 0) {
                 LOGGER.warn("No pipeline found for index [{}]", index.getName());
             } else if (pipelines.size() > 1) {
                 LOGGER.warn("More than 1 pipeline found for index [{}]", index.getName());
             } else {
-                final PipelineEntity pipeline = pipelines.getFirst();
+                final PipelineDocument pipeline = pipelines.getFirst();
 
                 // Create a processor for this index.
                 final QueryData criteria = new QueryData.Builder()
@@ -238,15 +238,15 @@ public final class SetupSampleDataBean {
         // Create stream processors for all feeds.
         for (final Feed feed : feeds) {
             // Find the pipeline for this feed.
-            final BaseResultList<PipelineEntity> pipelines = pipelineService
-                    .find(new FindPipelineEntityCriteria(feed.getName()));
+            final BaseResultList<PipelineDocument> pipelines = pipelineDocumentService
+                    .find(new FindPipelineDocumentCriteria(feed.getName()));
 
             if (pipelines == null || pipelines.size() == 0) {
                 LOGGER.warn("No pipeline found for feed '" + feed.getName() + "'");
             } else if (pipelines.size() > 1) {
                 LOGGER.warn("More than 1 pipeline found for feed '" + feed.getName() + "'");
             } else {
-                final PipelineEntity pipeline = pipelines.getFirst();
+                final PipelineDocument pipeline = pipelines.getFirst();
 
                 // Create a processor for this feed.
                 final QueryData criteria = new QueryData.Builder()
@@ -323,7 +323,7 @@ public final class SetupSampleDataBean {
             LOGGER.info("Feed count = " + commonTestControl.countEntity(Feed.class));
             LOGGER.info("StreamAttributeKey count = " + commonTestControl.countEntity(StreamAttributeKey.class));
             LOGGER.info("Dashboard count = " + commonTestControl.countEntity(Dashboard.class));
-            LOGGER.info("Pipeline count = " + commonTestControl.countEntity(PipelineEntity.class));
+            LOGGER.info("Pipeline count = " + commonTestControl.countEntity(PipelineDocument.class));
             LOGGER.info("Index count = " + commonTestControl.countEntity(Index.class));
             LOGGER.info("StatisticDataSource count = " + commonTestControl.countEntity(StatisticStore.class));
 
@@ -503,7 +503,7 @@ public final class SetupSampleDataBean {
     // final FindPipelineCriteria findTranslationCriteria = new
     // FindPipelineCriteria();
     // findTranslationCriteria.setName(name);
-    // final BaseResultList<Pipeline> list = pipelineService
+    // final BaseResultList<Pipeline> list = pipelineDocumentService
     // .find(findTranslationCriteria);
     // if (list != null && list.size() > 0) {
     // return list.getFirst();

@@ -18,10 +18,10 @@ package stroom.streamtask.shared;
 
 import stroom.entity.shared.BaseCriteria;
 import stroom.entity.shared.CriteriaSet;
+import stroom.entity.shared.DocRefSet;
 import stroom.entity.shared.EntityIdSet;
 import stroom.entity.shared.HasIsConstrained;
 import stroom.node.shared.Node;
-import stroom.pipeline.shared.PipelineEntity;
 import stroom.streamstore.shared.FindStreamCriteria;
 import stroom.streamstore.shared.Stream;
 
@@ -68,7 +68,7 @@ public final class FindStreamTaskCriteria extends BaseCriteria implements HasIsC
     /**
      * Find with a key
      */
-    private EntityIdSet<PipelineEntity> pipelineIdSet = null;
+    private DocRefSet pipelineSet = null;
 
     /**
      * Create at a particular time
@@ -130,15 +130,15 @@ public final class FindStreamTaskCriteria extends BaseCriteria implements HasIsC
         return nodeIdSet;
     }
 
-    public EntityIdSet<PipelineEntity> getPipelineIdSet() {
-        return pipelineIdSet;
+    public DocRefSet getPipelineSet() {
+        return pipelineSet;
     }
 
-    public EntityIdSet<PipelineEntity> obtainPipelineIdSet() {
-        if (pipelineIdSet == null) {
-            pipelineIdSet = new EntityIdSet<>();
+    public DocRefSet obtainPipelineSet() {
+        if (pipelineSet == null) {
+            pipelineSet = new DocRefSet();
         }
-        return pipelineIdSet;
+        return pipelineSet;
     }
 
     public EntityIdSet<StreamTask> getStreamTaskIdSet() {
@@ -210,7 +210,7 @@ public final class FindStreamTaskCriteria extends BaseCriteria implements HasIsC
             return false;
         if (streamProcessorFilterIdSet != null ? !streamProcessorFilterIdSet.equals(that.streamProcessorFilterIdSet) : that.streamProcessorFilterIdSet != null)
             return false;
-        if (pipelineIdSet != null ? !pipelineIdSet.equals(that.pipelineIdSet) : that.pipelineIdSet != null)
+        if (pipelineSet != null ? !pipelineSet.equals(that.pipelineSet) : that.pipelineSet != null)
             return false;
         if (createMs != null ? !createMs.equals(that.createMs) : that.createMs != null) return false;
         return findStreamCriteria != null ? findStreamCriteria.equals(that.findStreamCriteria) : that.findStreamCriteria == null;
@@ -223,7 +223,7 @@ public final class FindStreamTaskCriteria extends BaseCriteria implements HasIsC
         result = 31 * result + (nodeIdSet != null ? nodeIdSet.hashCode() : 0);
         result = 31 * result + (streamTaskIdSet != null ? streamTaskIdSet.hashCode() : 0);
         result = 31 * result + (streamProcessorFilterIdSet != null ? streamProcessorFilterIdSet.hashCode() : 0);
-        result = 31 * result + (pipelineIdSet != null ? pipelineIdSet.hashCode() : 0);
+        result = 31 * result + (pipelineSet != null ? pipelineSet.hashCode() : 0);
         result = 31 * result + (createMs != null ? createMs.hashCode() : 0);
         result = 31 * result + (findStreamCriteria != null ? findStreamCriteria.hashCode() : 0);
         return result;

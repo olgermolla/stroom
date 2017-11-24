@@ -39,7 +39,7 @@ import stroom.document.client.event.DirtyEvent;
 import stroom.document.client.event.DirtyEvent.DirtyHandler;
 import stroom.document.client.event.HasDirtyHandlers;
 import stroom.pipeline.shared.FetchDocRefsAction;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.pipeline.shared.data.PipelineElement;
 import stroom.pipeline.shared.data.PipelineElementType;
 import stroom.pipeline.shared.data.PipelinePropertyType;
@@ -80,7 +80,7 @@ public class PipelineReferenceListPresenter extends MyPresenterWidget<DataGridVi
     private final ClientDispatchAsync dispatcher;
 
     private Map<PipelineElementType, Map<String, PipelinePropertyType>> allPropertyTypes;
-    private PipelineEntity pipeline;
+    private PipelineDocument pipeline;
     private PipelineModel pipelineModel;
     private PipelineElement currentElement;
     private PipelinePropertyType propertyType;
@@ -224,7 +224,7 @@ public class PipelineReferenceListPresenter extends MyPresenterWidget<DataGridVi
         return builder.toSafeHtml();
     }
 
-    public void setPipeline(final PipelineEntity pipeline) {
+    public void setPipeline(final PipelineDocument pipeline) {
         this.pipeline = pipeline;
     }
 

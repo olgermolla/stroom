@@ -20,8 +20,8 @@ package stroom.pipeline.server.factory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import stroom.pipeline.server.PipelineService;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.server.PipelineDocumentService;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.query.api.v2.DocRef;
 
 import javax.annotation.Resource;
@@ -33,7 +33,7 @@ public class PipelineStackLoaderImpl implements PipelineStackLoader {
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineStackLoaderImpl.class);
 
     @Resource
-    private PipelineService pipelineService;
+    private PipelineDocumentService pipelineDocumentService;
 
     /**
      * Loads and returns a stack of pipelines representing the inheritance
@@ -43,18 +43,18 @@ public class PipelineStackLoaderImpl implements PipelineStackLoader {
      * This method will prevent circular pipeline references by ensuring only
      * unique items are added to the list.
      *
-     * @param pipelineEntity The pipeline that we want to load the inheritance chain for.
+     * @param pipelineDocument The pipeline that we want to load the inheritance chain for.
      * @return The inheritance chain for the supplied pipeline. The supplied
      * pipeline will be the last element in the list.
      */
     @Override
-    public List<PipelineEntity> loadPipelineStack(final PipelineEntity pipelineEntity) {
+    public List<PipelineDocument> loadPipelineStack(final PipelineDocument pipelineDocument) {
         // Load the pipeline.
-        final List<PipelineEntity> pipelineList = new ArrayList<>();
-        PipelineEntity parent = pipelineService.load(pipelineEntity);
+        final List<PipelineDocument> pipelineList = new ArrayList<>();
+        PipelineDocument parent = pipelineDocumentService.load(pipelineDocument);
 
         if (parent == null) {
-            throw new RuntimeException("Unable to load pipeline: " + pipelineEntity);
+            throw new RuntimeException("Unable to load pipeline: " + pipelineDocument);
         }
 
         pipelineList.add(0, parent);
@@ -62,7 +62,7 @@ public class PipelineStackLoaderImpl implements PipelineStackLoader {
         boolean circular = false;
         while (parent.getParentPipeline() != null && !circular) {
             final DocRef parentRef = parent.getParentPipeline();
-            parent = pipelineService.loadByUuid(parentRef.getUuid());
+            parent = pipelineDocumentService.loadByUuid(parentRef.getUuid());
 
             if (parent == null) {
                 throw new RuntimeException("Unable to load parent pipeline: " + parentRef);
@@ -74,7 +74,7 @@ public class PipelineStackLoaderImpl implements PipelineStackLoader {
                 pipelineList.add(0, parent);
             } else {
                 circular = true;
-                LOGGER.warn("Circular reference detected in pipeline: " + pipelineEntity.toString());
+                LOGGER.warn("Circular reference detected in pipeline: " + pipelineDocument.toString());
             }
         }
         return pipelineList;

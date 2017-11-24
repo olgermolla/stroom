@@ -25,7 +25,7 @@ import stroom.dashboard.client.query.QueryPresenter;
 import stroom.dashboard.shared.ComponentConfig;
 import stroom.dashboard.shared.TableComponentSettings;
 import stroom.explorer.client.presenter.EntityDropDownPresenter;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.query.api.v2.DocRef;
 import stroom.security.shared.DocumentPermissionNames;
 import stroom.util.shared.EqualsBuilder;
@@ -43,8 +43,8 @@ public class BasicTableSettingsPresenter
         super(eventBus, view);
         this.pipelinePresenter = pipelinePresenter;
 
-        pipelinePresenter.setIncludedTypes(PipelineEntity.ENTITY_TYPE);
-        pipelinePresenter.setTags(PipelineEntity.PipelineType.SEARCH_EXTRACTION.getDisplayValue());
+        pipelinePresenter.setIncludedTypes(PipelineDocument.DOCUMENT_TYPE);
+        pipelinePresenter.setTags(PipelineDocument.PipelineType.SEARCH_EXTRACTION.getDisplayValue());
         pipelinePresenter.setRequiredPermissions(DocumentPermissionNames.USE);
 
         view.setPipelineView(pipelinePresenter.getView());

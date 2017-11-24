@@ -37,7 +37,7 @@ import stroom.editor.client.presenter.HtmlPresenter;
 import stroom.pipeline.shared.FetchDataAction;
 import stroom.pipeline.shared.FetchDataResult;
 import stroom.pipeline.shared.FetchDataWithPipelineAction;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.pipeline.stepping.client.event.BeginPipelineSteppingEvent;
 import stroom.security.client.ClientSecurityContext;
 import stroom.streamstore.shared.Stream;
@@ -93,7 +93,7 @@ public class TextPresenter extends AbstractComponentPresenter<TextPresenter.Text
         Scheduler.get().scheduleDeferred(() -> {
             // Determine if we should show tha play button.
             playButtonVisible = !isHtml
-                    && securityContext.hasAppPermission(PipelineEntity.STEPPING_PERMISSION);
+                    && securityContext.hasAppPermission(PipelineDocument.STEPPING_PERMISSION);
 
             // Show the play button if we have fetched input data.
             getView().setPlayVisible(playButtonVisible);

@@ -37,7 +37,7 @@ import stroom.pipeline.shared.AbstractFetchDataResult;
 import stroom.pipeline.shared.FetchDataAction;
 import stroom.pipeline.shared.FetchDataResult;
 import stroom.pipeline.shared.FetchMarkerResult;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.pipeline.shared.data.PipelineData;
 import stroom.pipeline.state.FeedHolder;
 import stroom.pipeline.state.PipelineHolder;
@@ -86,7 +86,7 @@ public abstract class AbstractFetchDataHandler<A extends FetchDataAction>
     private final FeedHolder feedHolder;
     private final PipelineHolder pipelineHolder;
     private final StreamHolder streamHolder;
-    private final PipelineService pipelineService;
+    private final PipelineDocumentService pipelineDocumentService;
     private final PipelineFactory pipelineFactory;
     private final ErrorReceiverProxy errorReceiverProxy;
     private final PipelineDataCache pipelineDataCache;
@@ -105,7 +105,7 @@ public abstract class AbstractFetchDataHandler<A extends FetchDataAction>
                              final FeedHolder feedHolder,
                              final PipelineHolder pipelineHolder,
                              final StreamHolder streamHolder,
-                             final PipelineService pipelineService,
+                             final PipelineDocumentService pipelineDocumentService,
                              final PipelineFactory pipelineFactory,
                              final ErrorReceiverProxy errorReceiverProxy,
                              final PipelineDataCache pipelineDataCache,
@@ -116,7 +116,7 @@ public abstract class AbstractFetchDataHandler<A extends FetchDataAction>
         this.feedHolder = feedHolder;
         this.pipelineHolder = pipelineHolder;
         this.streamHolder = streamHolder;
-        this.pipelineService = pipelineService;
+        this.pipelineDocumentService = pipelineDocumentService;
         this.pipelineFactory = pipelineFactory;
         this.errorReceiverProxy = errorReceiverProxy;
         this.pipelineDataCache = pipelineDataCache;
@@ -428,7 +428,7 @@ public abstract class AbstractFetchDataHandler<A extends FetchDataAction>
         errorReceiverProxy.setErrorReceiver(errorReceiver);
 
         // Set the pipeline so it can be used by a filter if needed.
-        final PipelineEntity loadedPipeline = pipelineService.loadByUuid(pipelineRef.getUuid());
+        final PipelineDocument loadedPipeline = pipelineDocumentService.loadByUuid(pipelineRef.getUuid());
         if (loadedPipeline == null) {
             throw new EntityServiceException("Unable to load pipeline");
         }

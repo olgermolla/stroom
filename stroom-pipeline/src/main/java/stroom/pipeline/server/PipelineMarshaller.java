@@ -17,20 +17,20 @@
 package stroom.pipeline.server;
 
 import stroom.entity.server.EntityMarshaller;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.pipeline.shared.data.PipelineData;
 
-class PipelineMarshaller extends EntityMarshaller<PipelineEntity, PipelineData> {
+class PipelineMarshaller extends EntityMarshaller<PipelineDocument, PipelineData> {
     PipelineMarshaller() {
     }
 
     @Override
-    public PipelineData getObject(final PipelineEntity entity) {
+    public PipelineData getObject(final PipelineDocument entity) {
         return entity.getPipelineData();
     }
 
     @Override
-    public void setObject(final PipelineEntity entity, final PipelineData object) {
+    public void setObject(final PipelineDocument entity, final PipelineData object) {
         if (object == null) {
             entity.setPipelineData(new PipelineData());
         } else {
@@ -39,12 +39,12 @@ class PipelineMarshaller extends EntityMarshaller<PipelineEntity, PipelineData> 
     }
 
     @Override
-    protected String getData(final PipelineEntity entity) {
+    protected String getData(final PipelineDocument entity) {
         return entity.getData();
     }
 
     @Override
-    protected void setData(final PipelineEntity entity, final String data) {
+    protected void setData(final PipelineDocument entity, final String data) {
         entity.setData(data);
     }
 
@@ -55,6 +55,6 @@ class PipelineMarshaller extends EntityMarshaller<PipelineEntity, PipelineData> 
 
     @Override
     public String getEntityType() {
-        return PipelineEntity.ENTITY_TYPE;
+        return PipelineDocument.ENTITY_TYPE;
     }
 }

@@ -49,14 +49,14 @@ public class TextConverterServiceImpl extends DocumentEntityServiceImpl<TextConv
 //        final boolean mySql = stroomDatabaseInfo.isMysql();
 //        final ArrayList<EntityReferenceQuery> rtnList = new ArrayList<>();
 //        if (mySql) {
-//            rtnList.add(new EntityReferenceQuery(PipelineEntity.ENTITY_TYPE, PipelineEntity.TABLE_NAME,
-//                    PipelineEntity.DATA + " regexp '<type>@TYPE@</type>[[:space:]]*<id>@ID@</id>'"));
+//            rtnList.add(new EntityReferenceQuery(PipelineDocument.ENTITY_TYPE, PipelineDocument.TABLE_NAME,
+//                    PipelineDocument.DATA + " regexp '<type>@TYPE@</type>[[:space:]]*<id>@ID@</id>'"));
 //        } else {
 //            // This won't work too well as we really need to match with a regex
 //            // that we can only do in MySQL
-//            rtnList.add(new EntityReferenceQuery(PipelineEntity.ENTITY_TYPE, PipelineEntity.TABLE_NAME,
-//                    "(locate('<type>@TYPE@</type>', CAST(" + PipelineEntity.DATA
-//                            + " AS LONGVARCHAR)) <> 0 AND locate('<id>@ID@</id>', CAST(" + PipelineEntity.DATA
+//            rtnList.add(new EntityReferenceQuery(PipelineDocument.ENTITY_TYPE, PipelineDocument.TABLE_NAME,
+//                    "(locate('<type>@TYPE@</type>', CAST(" + PipelineDocument.DATA
+//                            + " AS LONGVARCHAR)) <> 0 AND locate('<id>@ID@</id>', CAST(" + PipelineDocument.DATA
 //                            + " AS LONGVARCHAR)) <> 0)"));
 //
 //        }

@@ -38,6 +38,7 @@ public class EntityIdSetViewImpl extends ViewWithUiHandlers<EntityIdSetUiHandler
     SvgButton remove;
     @UiField
     ScrollPanel list;
+
     @Inject
     public EntityIdSetViewImpl(final Binder binder) {
         add = SvgButton.create(SvgPresets.ADD);

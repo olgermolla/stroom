@@ -18,13 +18,9 @@ package stroom.streamtask.shared;
 
 import stroom.entity.shared.AuditedEntity;
 import stroom.entity.shared.SQLNameConstants;
-import stroom.pipeline.shared.PipelineEntity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -34,6 +30,7 @@ public class StreamProcessor extends AuditedEntity {
     public static final String TABLE_NAME = SQLNameConstants.STREAM + SEP + SQLNameConstants.PROCESSOR;
     public static final String FOREIGN_KEY = FK_PREFIX + TABLE_NAME + ID_SUFFIX;
     public static final String TASK_TYPE = SQLNameConstants.TASK + SEP + SQLNameConstants.TYPE;
+    public static final String PIPELINE_UUID = SQLNameConstants.PIPELINE + SEP + SQLNameConstants.UUID;
     public static final String ENABLED = SQLNameConstants.ENABLED;
     public static final String ENTITY_TYPE = "StreamProcessor";
     public static final String PIPELINE_STREAM_PROCESSOR_TASK_TYPE = "pipelineStreamProcessor";
@@ -42,14 +39,14 @@ public class StreamProcessor extends AuditedEntity {
     private static final long serialVersionUID = -958099873937223257L;
     // Only One type for the moment
     private String taskType = PIPELINE_STREAM_PROCESSOR_TASK_TYPE;
-    private PipelineEntity pipeline;
+    private String pipelineUuid;
     private boolean enabled;
 
     public StreamProcessor() {
     }
 
-    public StreamProcessor(final PipelineEntity pipeline) {
-        this.pipeline = pipeline;
+    public StreamProcessor(final String pipelineUuid) {
+        this.pipelineUuid = pipelineUuid;
     }
 
     @Transient
@@ -67,14 +64,13 @@ public class StreamProcessor extends AuditedEntity {
         this.taskType = taskType;
     }
 
-    @OneToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = PipelineEntity.FOREIGN_KEY)
-    public PipelineEntity getPipeline() {
-        return pipeline;
+    @Column(name = PIPELINE_UUID)
+    public String getPipelineUuid() {
+        return pipelineUuid;
     }
 
-    public void setPipeline(PipelineEntity pipeline) {
-        this.pipeline = pipeline;
+    public void setPipelineUuid(String pipeline) {
+        this.pipelineUuid = pipelineUuid;
     }
 
     @Column(name = ENABLED, nullable = false)

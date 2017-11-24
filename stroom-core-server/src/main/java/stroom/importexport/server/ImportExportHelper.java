@@ -110,8 +110,8 @@ public class ImportExportHelper {
 //        entityClasses.remove(Folder.class);
 //        entityClasses.add(0, Folder.class);
 //        // Make sure pipelines are last.
-//        entityClasses.remove(PipelineEntity.class);
-//        entityClasses.add(PipelineEntity.class);
+//        entityClasses.remove(PipelineDocument.class);
+//        entityClasses.add(PipelineDocument.class);
 //
 //        // Keep repeating the services loop to ensure all dependencies are
 //        // loaded.

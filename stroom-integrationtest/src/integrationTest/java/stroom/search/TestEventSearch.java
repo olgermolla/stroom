@@ -23,7 +23,7 @@ import stroom.entity.shared.DocRefUtil;
 import stroom.index.server.IndexService;
 import stroom.index.shared.FindIndexCriteria;
 import stroom.index.shared.Index;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.query.api.v2.*;
 
 import stroom.query.api.v2.ExpressionTerm.Condition;
@@ -169,7 +169,7 @@ public class TestEventSearch extends AbstractSearchTest {
                 .format(Format.Type.DATE_TIME)
                 .build();
 
-        final PipelineEntity resultPipeline = commonIndexingTest.getSearchResultPipeline();
+        final PipelineDocument resultPipeline = commonIndexingTest.getSearchResultPipeline();
         return new TableSettings(null, Arrays.asList(idField, timeField), extractValues, DocRefUtil.create(resultPipeline), null, null);
     }
 

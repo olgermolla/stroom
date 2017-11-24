@@ -23,12 +23,12 @@ import com.gwtplatform.mvp.client.HasUiHandlers;
 import com.gwtplatform.mvp.client.View;
 import stroom.entity.client.presenter.DocumentSettingsPresenter;
 import stroom.pipeline.client.presenter.PipelineSettingsPresenter.PipelineSettingsView;
-import stroom.pipeline.shared.PipelineEntity;
-import stroom.pipeline.shared.PipelineEntity.PipelineType;
+import stroom.pipeline.shared.PipelineDocument;
+import stroom.pipeline.shared.PipelineDocument.PipelineType;
 import stroom.security.client.ClientSecurityContext;
 
 public class PipelineSettingsPresenter
-        extends DocumentSettingsPresenter<PipelineSettingsView, PipelineEntity>
+        extends DocumentSettingsPresenter<PipelineSettingsView, PipelineDocument>
         implements PipelineSettingsUiHandlers {
     @Inject
     public PipelineSettingsPresenter(final EventBus eventBus, final PipelineSettingsView view,
@@ -39,21 +39,21 @@ public class PipelineSettingsPresenter
 
     @Override
     public String getType() {
-        return PipelineEntity.ENTITY_TYPE;
+        return PipelineDocument.DOCUMENT_TYPE;
     }
 
     @Override
-    protected void onRead(final PipelineEntity pipelineEntity) {
-        getView().setDescription(pipelineEntity.getDescription());
+    protected void onRead(final PipelineDocument pipelineDocument) {
+        getView().setDescription(pipelineDocument.getDescription());
         getView().clearTypes();
-        for (final PipelineEntity.PipelineType type : PipelineEntity.PipelineType.values()) {
+        for (final PipelineDocument.PipelineType type : PipelineDocument.PipelineType.values()) {
             getView().addType(type);
         }
 
-        PipelineEntity.PipelineType type = null;
-        if (pipelineEntity.getPipelineType() != null) {
-            for (final PipelineEntity.PipelineType t : PipelineEntity.PipelineType.values()) {
-                if (t.getDisplayValue().equals(pipelineEntity.getPipelineType())) {
+        PipelineDocument.PipelineType type = null;
+        if (pipelineDocument.getPipelineType() != null) {
+            for (final PipelineDocument.PipelineType t : PipelineDocument.PipelineType.values()) {
+                if (t.getDisplayValue().equals(pipelineDocument.getPipelineType())) {
                     type = t;
                 }
             }
@@ -63,14 +63,14 @@ public class PipelineSettingsPresenter
     }
 
     @Override
-    protected void onWrite(final PipelineEntity pipelineEntity) {
+    protected void onWrite(final PipelineDocument pipelineDocument) {
         final PipelineType pipelineType = getView().getType();
-        if (pipelineType != null && !pipelineType.getDisplayValue().equals(pipelineEntity.getPipelineType())) {
-            pipelineEntity.setPipelineType(pipelineType.getDisplayValue());
+        if (pipelineType != null && !pipelineType.getDisplayValue().equals(pipelineDocument.getPipelineType())) {
+            pipelineDocument.setPipelineType(pipelineType.getDisplayValue());
             setDirty(true);
         }
-        if (!getView().getDescription().trim().equals(pipelineEntity.getDescription())) {
-            pipelineEntity.setDescription(getView().getDescription().trim());
+        if (!getView().getDescription().trim().equals(pipelineDocument.getDescription())) {
+            pipelineDocument.setDescription(getView().getDescription().trim());
             setDirty(true);
         }
     }
@@ -82,10 +82,10 @@ public class PipelineSettingsPresenter
 
         void clearTypes();
 
-        void addType(PipelineEntity.PipelineType type);
+        void addType(PipelineDocument.PipelineType type);
 
-        PipelineEntity.PipelineType getType();
+        PipelineDocument.PipelineType getType();
 
-        void setType(PipelineEntity.PipelineType type);
+        void setType(PipelineDocument.PipelineType type);
     }
 }

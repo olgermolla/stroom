@@ -30,7 +30,7 @@ import stroom.pipeline.server.filter.TestSAXEventFilter;
 import stroom.pipeline.server.filter.XMLFilter;
 import stroom.pipeline.server.filter.XMLFilterFork;
 import stroom.pipeline.server.parser.CombinedParser;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.pipeline.shared.TextConverter;
 import stroom.pipeline.shared.TextConverter.TextConverterType;
 import stroom.pipeline.shared.XSLT;
@@ -66,7 +66,7 @@ public class TestRecordOutputFilter extends AbstractProcessIntegrationTest {
     @Resource
     private TextConverterService textConverterService;
     @Resource
-    private PipelineService pipelineService;
+    private PipelineDocumentService pipelineDocumentService;
     @Resource
     private PipelineDataCache pipelineDataCache;
     @Resource
@@ -78,9 +78,9 @@ public class TestRecordOutputFilter extends AbstractProcessIntegrationTest {
         final TextConverter textConverter = createTextConverter(dir + "TestRecordOutputFilter.ds3.xml",
                 "TestRecordOutputFilter", TextConverterType.DATA_SPLITTER);
         final XSLT filteredXSLT = createXSLT(dir + "TestRecordOutputFilter.xsl", "TestRecordOutputFilter");
-        final PipelineEntity pipelineEntity = createPipeline(dir + "TestRecordOutputFilter Pipeline.xml", textConverter,
+        final PipelineDocument pipelineDocument = createPipeline(dir + "TestRecordOutputFilter Pipeline.xml", textConverter,
                 filteredXSLT);
-        test(pipelineEntity, dir, "TestRecordOutputFilter-all", "TestRecordOutputFilter", "TestRecordOutputFilter-all",
+        test(pipelineDocument, dir, "TestRecordOutputFilter-all", "TestRecordOutputFilter", "TestRecordOutputFilter-all",
                 null);
     }
 
@@ -90,28 +90,28 @@ public class TestRecordOutputFilter extends AbstractProcessIntegrationTest {
         final TextConverter textConverter = createTextConverter(dir + "TestRecordOutputFilter.ds3.xml",
                 "TestRecordOutputFilter", TextConverterType.DATA_SPLITTER);
         final XSLT filteredXSLT = createXSLT(dir + "TestRecordOutputFilter.xsl", "TestRecordOutputFilter");
-        final PipelineEntity pipelineEntity = createPipeline(dir + "TestRecordOutputFilter Pipeline.xml", textConverter,
+        final PipelineDocument pipelineDocument = createPipeline(dir + "TestRecordOutputFilter Pipeline.xml", textConverter,
                 filteredXSLT);
-        test(pipelineEntity, dir, "TestRecordOutputFilter-pt", "TestRecordOutputFilter", "TestRecordOutputFilter-pt",
+        test(pipelineDocument, dir, "TestRecordOutputFilter-pt", "TestRecordOutputFilter", "TestRecordOutputFilter-pt",
                 null);
     }
 
-    private PipelineEntity createPipeline(final String pipelineFile, final TextConverter textConverter,
+    private PipelineDocument createPipeline(final String pipelineFile, final TextConverter textConverter,
                                           final XSLT xslt) {
         // Load the pipeline config.
         final String data = StroomPipelineTestFileUtil.getString(pipelineFile);
-        final PipelineEntity pipelineEntity = PipelineTestUtil.createTestPipeline(pipelineService, data);
+        final PipelineDocument pipelineDocument = PipelineTestUtil.createTestPipeline(pipelineDocumentService, data);
 
         if (textConverter != null) {
-            pipelineEntity.getPipelineData().addProperty(
+            pipelineDocument.getPipelineData().addProperty(
                     PipelineDataUtil.createProperty(CombinedParser.DEFAULT_NAME, "textConverter", textConverter));
         }
         if (xslt != null) {
-            pipelineEntity.getPipelineData()
+            pipelineDocument.getPipelineData()
                     .addProperty(PipelineDataUtil.createProperty("translationFilter", "xslt", xslt));
         }
 
-        return pipelineService.save(pipelineEntity);
+        return pipelineDocumentService.save(pipelineDocument);
     }
 
     private TextConverter createTextConverter(final String textConverterFile, final String name,
@@ -134,7 +134,7 @@ public class TestRecordOutputFilter extends AbstractProcessIntegrationTest {
         return xslt;
     }
 
-    private void test(final PipelineEntity pipelineEntity, final String dir, final String inputStem,
+    private void test(final PipelineDocument pipelineDocument, final String dir, final String inputStem,
                       final String outputXMLStem, final String outputSAXStem, final String encoding) throws Exception {
         final Path tempDir = getCurrentTestDir();
 
@@ -153,7 +153,7 @@ public class TestRecordOutputFilter extends AbstractProcessIntegrationTest {
         errorReceiver.setErrorReceiver(loggingErrorReceiver);
 
         // Create the parser.
-        final PipelineData pipelineData = pipelineDataCache.get(pipelineEntity);
+        final PipelineData pipelineData = pipelineDataCache.get(pipelineDocument);
         final Pipeline pipeline = pipelineFactory.create(pipelineData);
 
         // Add a SAX event filter.

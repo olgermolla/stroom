@@ -28,12 +28,12 @@ import stroom.data.grid.client.OrderByColumn;
 import stroom.dispatch.client.ClientDispatchAsync;
 import stroom.entity.client.presenter.EntityServiceFindActionDataProvider;
 import stroom.entity.client.presenter.HasRead;
-import stroom.entity.shared.BaseEntity;
 import stroom.entity.shared.NamedEntity;
 import stroom.entity.shared.Sort.Direction;
 import stroom.feed.shared.Feed;
 import stroom.node.shared.Node;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.docstore.shared.DocRefUtil;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.streamstore.shared.Stream;
 import stroom.streamstore.shared.StreamStatus;
 import stroom.streamstore.shared.StreamType;
@@ -49,7 +49,7 @@ import stroom.widget.tooltip.client.presenter.TooltipUtil;
 
 import java.util.ArrayList;
 
-public class StreamTaskListPresenter extends MyPresenterWidget<DataGridView<StreamTask>> implements HasRead<BaseEntity> {
+public class StreamTaskListPresenter extends MyPresenterWidget<DataGridView<StreamTask>> implements HasRead<Object> {
     private final EntityServiceFindActionDataProvider<FindStreamTaskCriteria, StreamTask> dataProvider;
 
     @Inject
@@ -87,16 +87,15 @@ public class StreamTaskListPresenter extends MyPresenterWidget<DataGridView<Stre
 
                 if (row.getStreamProcessorFilter() != null) {
                     if (row.getStreamProcessorFilter().getStreamProcessor() != null) {
-                        if (row.getStreamProcessorFilter().getStreamProcessor().getPipeline() != null) {
+                        if (row.getStreamProcessorFilter().getStreamProcessor().getPipelineUuid() != null) {
                             TooltipUtil.addBreak(html);
                             TooltipUtil.addHeading(html, "Stream Processor");
                             TooltipUtil.addRowData(html, "Stream Processor Id",
                                     row.getStreamProcessorFilter().getStreamProcessor().getId());
                             TooltipUtil.addRowData(html, "Stream Processor Filter Id",
                                     row.getStreamProcessorFilter().getId());
-                            if (row.getStreamProcessorFilter().getStreamProcessor().getPipeline() != null) {
-                                TooltipUtil.addRowData(html, "Stream Processor Pipeline", toNameString(
-                                        row.getStreamProcessorFilter().getStreamProcessor().getPipeline()));
+                            if (row.getStreamProcessorFilter().getStreamProcessor().getPipelineUuid() != null) {
+                                TooltipUtil.addRowData(html, "Stream Processor Pipeline", row.getStreamProcessorFilter().getStreamProcessor().getPipelineUuid());
                             }
                         }
                     }
@@ -153,9 +152,8 @@ public class StreamTaskListPresenter extends MyPresenterWidget<DataGridView<Stre
                     public String getValue(final StreamTask row) {
                         if (row.getStreamProcessorFilter() != null) {
                             if (row.getStreamProcessorFilter().getStreamProcessor() != null) {
-                                if (row.getStreamProcessorFilter().getStreamProcessor().getPipeline() != null) {
-                                    return row.getStreamProcessorFilter().getStreamProcessor().getPipeline()
-                                            .getDisplayValue();
+                                if (row.getStreamProcessorFilter().getStreamProcessor().getPipelineUuid() != null) {
+                                    return row.getStreamProcessorFilter().getStreamProcessor().getPipelineUuid();
                                 }
                             }
                         }
@@ -214,9 +212,9 @@ public class StreamTaskListPresenter extends MyPresenterWidget<DataGridView<Stre
         return dataProvider.getCriteria();
     }
 
-    private void setCriteria(final PipelineEntity pipelineEntity) {
+    private void setCriteria(final PipelineDocument pipelineDocument) {
         final FindStreamTaskCriteria criteria = initCriteria();
-        criteria.obtainFindStreamCriteria().obtainPipelineIdSet().add(pipelineEntity);
+        criteria.obtainFindStreamCriteria().obtainPipelineSet().add(DocRefUtil.create(pipelineDocument));
         dataProvider.setCriteria(criteria);
     }
 
@@ -230,11 +228,11 @@ public class StreamTaskListPresenter extends MyPresenterWidget<DataGridView<Stre
     }
 
     @Override
-    public void read(final BaseEntity entity) {
+    public void read(final Object entity) {
         if (entity instanceof Feed) {
             setCriteria((Feed) entity);
-        } else if (entity instanceof PipelineEntity) {
-            setCriteria((PipelineEntity) entity);
+        } else if (entity instanceof PipelineDocument) {
+            setCriteria((PipelineDocument) entity);
         } else {
             setNullCriteria();
         }
@@ -247,7 +245,7 @@ public class StreamTaskListPresenter extends MyPresenterWidget<DataGridView<Stre
         criteria.getFetchSet().add(StreamType.ENTITY_TYPE);
         criteria.getFetchSet().add(Feed.ENTITY_TYPE);
         criteria.getFetchSet().add(StreamProcessor.ENTITY_TYPE);
-        criteria.getFetchSet().add(PipelineEntity.ENTITY_TYPE);
+//        criteria.getFetchSet().add(PipelineDocument.ENTITY_TYPE);
         criteria.getFetchSet().add(Node.ENTITY_TYPE);
         criteria.obtainStreamTaskStatusSet().setMatchAll(Boolean.FALSE);
         // Only show unlocked stuff

@@ -25,7 +25,7 @@ import stroom.entity.server.QueryAppender;
 import stroom.entity.server.SystemEntityServiceImpl;
 import stroom.entity.server.util.HqlBuilder;
 import stroom.entity.server.util.StroomEntityManager;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.security.Insecure;
 import stroom.security.Secured;
 import stroom.streamtask.shared.FindStreamProcessorCriteria;
@@ -63,7 +63,7 @@ public class StreamProcessorServiceImpl extends SystemEntityServiceImpl<StreamPr
 
     @Override
     public void appendCriteria(final List<BaseAdvancedQueryItem> items, final FindStreamProcessorCriteria criteria) {
-        CriteriaLoggingUtil.appendEntityIdSet(items, "pipelineIdSet", criteria.getPipelineIdSet());
+        CriteriaLoggingUtil.appendEntityIdSet(items, "pipelineIdSet", criteria.getPipelineSet());
         super.appendCriteria(items, criteria);
     }
 
@@ -77,21 +77,21 @@ public class StreamProcessorServiceImpl extends SystemEntityServiceImpl<StreamPr
             super(entityManager);
         }
 
-        @Override
-        protected void appendBasicJoin(final HqlBuilder sql, final String alias, final Set<String> fetchSet) {
-            super.appendBasicJoin(sql, alias, fetchSet);
-            if (fetchSet != null && fetchSet.contains(PipelineEntity.ENTITY_TYPE)) {
-                sql.append(" LEFT OUTER JOIN FETCH ");
-                sql.append(alias);
-                sql.append(".pipeline");
-            }
-        }
+//        @Override
+//        protected void appendBasicJoin(final HqlBuilder sql, final String alias, final Set<String> fetchSet) {
+//            super.appendBasicJoin(sql, alias, fetchSet);
+//            if (fetchSet != null && fetchSet.contains(PipelineDocument.DOCUMENT_TYPE)) {
+//                sql.append(" LEFT OUTER JOIN FETCH ");
+//                sql.append(alias);
+//                sql.append(".pipeline");
+//            }
+//        }
 
         @Override
         protected void appendBasicCriteria(final HqlBuilder sql, final String entityName,
                                            final FindStreamProcessorCriteria criteria) {
             super.appendBasicCriteria(sql, entityName, criteria);
-            sql.appendEntityIdSetQuery(entityName + ".pipeline", criteria.getPipelineIdSet());
+            sql.appendEntityIdSetQuery(entityName + ".pipeline", criteria.getPipelineSet());
         }
     }
 }

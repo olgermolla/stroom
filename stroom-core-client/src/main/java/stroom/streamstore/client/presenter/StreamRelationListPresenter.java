@@ -27,7 +27,7 @@ import stroom.entity.shared.BaseResultList;
 import stroom.entity.shared.ResultList;
 import stroom.entity.shared.Sort.Direction;
 import stroom.feed.shared.Feed;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.security.client.ClientSecurityContext;
 import stroom.streamstore.shared.FindStreamAttributeMapCriteria;
 import stroom.streamstore.shared.FindStreamCriteria;
@@ -72,7 +72,7 @@ public class StreamRelationListPresenter extends AbstractStreamListPresenter {
             findStreamCriteria.getFetchSet().add(Stream.ENTITY_TYPE);
 
             findStreamCriteria.getFetchSet().add(Feed.ENTITY_TYPE);
-            findStreamCriteria.getFetchSet().add(PipelineEntity.ENTITY_TYPE);
+//            findStreamCriteria.getFetchSet().add(PipelineDocument.ENTITY_TYPE);
             findStreamCriteria.getFetchSet().add(StreamType.ENTITY_TYPE);
             findStreamCriteria.setSort(FindStreamCriteria.FIELD_CREATE_MS, Direction.ASCENDING, false);
 

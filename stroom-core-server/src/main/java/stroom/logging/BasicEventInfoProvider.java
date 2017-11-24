@@ -29,7 +29,7 @@ import stroom.entity.shared.Document;
 import stroom.entity.shared.NamedEntity;
 import stroom.feed.server.FeedService;
 import stroom.feed.shared.Feed;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.streamstore.server.StreamTypeService;
 import stroom.streamstore.shared.Stream;
 
@@ -52,95 +52,93 @@ public class BasicEventInfoProvider implements EventInfoProvider {
 
     @Override
     public BaseObject createBaseObject(final java.lang.Object obj) {
-        if (obj instanceof BaseEntity) {
-            final BaseEntity entity = (BaseEntity) obj;
+        final String type = getObjectType(obj);
+        final String id = getId(obj);
+        String name = null;
+        String description = null;
 
-            final String type = getObjectType(entity);
-            final String id = getId(entity);
-            String name = null;
-            String description = null;
-
-            // Add name.
-            if (entity instanceof NamedEntity) {
-                final NamedEntity namedEntity = (NamedEntity) entity;
-                name = namedEntity.getName();
-            }
-
-            // Add description.
-            if (entity instanceof Feed) {
-                try {
-                    final Feed feed = (Feed) entity;
-                    description = feed.getDescription();
-                } catch (final Exception ex) {
-                    LOGGER.error("Unable to get feed description!", ex);
-                }
-            } else if (entity instanceof PipelineEntity) {
-                try {
-                    final PipelineEntity pipelineEntity = (PipelineEntity) entity;
-                    description = pipelineEntity.getDescription();
-                } catch (final Exception ex) {
-                    LOGGER.error("Unable to get pipeline description!", ex);
-                }
-            }
-
-            final Object object = new Object();
-            object.setType(type);
-            object.setId(id);
-            object.setName(name);
-            object.setDescription(description);
-
-            // Add unknown but useful data items.
-            if (entity instanceof Feed) {
-                try {
-                    final Feed feed = (Feed) entity;
-                    object.getData()
-                            .add(EventLoggingUtil.createData("FeedStatus", feed.getStatus().getDisplayValue()));
-                    // Stream type is now lazy
-                    if (feed.getStreamType() != null) {
-                        object.getData().add(EventLoggingUtil.createData("StreamType",
-                                streamTypeService.load(feed.getStreamType()).getDisplayValue()));
-                    }
-                    object.getData().add(EventLoggingUtil.createData("DataEncoding", feed.getEncoding()));
-                    object.getData().add(EventLoggingUtil.createData("ContextEncoding", feed.getContextEncoding()));
-                    object.getData().add(EventLoggingUtil.createData("RetentionDayAge",
-                            String.valueOf(feed.getRetentionDayAge())));
-                    object.getData()
-                            .add(EventLoggingUtil.createData("Reference", Boolean.toString(feed.isReference())));
-                } catch (final Exception ex) {
-                    LOGGER.error("Unable to add unknown but useful data!", ex);
-                }
-            } else if (entity instanceof Stream) {
-                try {
-                    final Stream stream = (Stream) entity;
-                    if (stream.getFeed() != null) {
-                        EventLoggingUtil.createData("Feed", feedService.load(stream.getFeed()).getName());
-                    }
-                    // Stream type is now lazy
-                    if (stream.getStreamType() != null) {
-                        object.getData().add(EventLoggingUtil.createData("StreamType",
-                                streamTypeService.load(stream.getStreamType()).getDisplayValue()));
-                    }
-                } catch (final Exception ex) {
-                    LOGGER.error("Unable to configure stream!", ex);
-                }
-            }
-
-            return object;
+        // Add name.
+        if (obj instanceof NamedEntity) {
+            final NamedEntity namedEntity = (NamedEntity) obj;
+            name = namedEntity.getName();
         }
 
-        return null;
+        // Add description.
+        if (obj instanceof Feed) {
+            try {
+                final Feed feed = (Feed) obj;
+                description = feed.getDescription();
+            } catch (final Exception ex) {
+                LOGGER.error("Unable to get feed description!", ex);
+            }
+        } else if (obj instanceof PipelineDocument) {
+            try {
+                final PipelineDocument pipelineDocument = (PipelineDocument) obj;
+                description = pipelineDocument.getDescription();
+            } catch (final Exception ex) {
+                LOGGER.error("Unable to get pipeline description!", ex);
+            }
+        }
+
+        final Object object = new Object();
+        object.setType(type);
+        object.setId(id);
+        object.setName(name);
+        object.setDescription(description);
+
+        // Add unknown but useful data items.
+        if (obj instanceof Feed) {
+            try {
+                final Feed feed = (Feed) obj;
+                object.getData()
+                        .add(EventLoggingUtil.createData("FeedStatus", feed.getStatus().getDisplayValue()));
+                // Stream type is now lazy
+                if (feed.getStreamType() != null) {
+                    object.getData().add(EventLoggingUtil.createData("StreamType",
+                            streamTypeService.load(feed.getStreamType()).getDisplayValue()));
+                }
+                object.getData().add(EventLoggingUtil.createData("DataEncoding", feed.getEncoding()));
+                object.getData().add(EventLoggingUtil.createData("ContextEncoding", feed.getContextEncoding()));
+                object.getData().add(EventLoggingUtil.createData("RetentionDayAge",
+                        String.valueOf(feed.getRetentionDayAge())));
+                object.getData()
+                        .add(EventLoggingUtil.createData("Reference", Boolean.toString(feed.isReference())));
+            } catch (final Exception ex) {
+                LOGGER.error("Unable to add unknown but useful data!", ex);
+            }
+        } else if (obj instanceof Stream) {
+            try {
+                final Stream stream = (Stream) obj;
+                if (stream.getFeed() != null) {
+                    EventLoggingUtil.createData("Feed", feedService.load(stream.getFeed()).getName());
+                }
+                // Stream type is now lazy
+                if (stream.getStreamType() != null) {
+                    object.getData().add(EventLoggingUtil.createData("StreamType",
+                            streamTypeService.load(stream.getStreamType()).getDisplayValue()));
+                }
+            } catch (final Exception ex) {
+                LOGGER.error("Unable to configure stream!", ex);
+            }
+        }
+
+        return object;
     }
 
-    private String getId(final BaseEntity entity) {
-        if (entity == null) {
+    private String getId(final java.lang.Object obj) {
+        if (obj == null) {
             return null;
         }
 
-        if (entity instanceof Document) {
-            return ((Document) entity).getUuid();
+        if (obj instanceof Document) {
+            return ((Document) obj).getUuid();
         }
 
-        return String.valueOf(entity.getId());
+        if (obj instanceof BaseEntity) {
+            return String.valueOf(((BaseEntity) obj).getId());
+        }
+
+        return null;
     }
 
     @Override

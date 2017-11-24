@@ -18,12 +18,12 @@
 package stroom.pipeline.server.stepping;
 
 import org.springframework.context.annotation.Scope;
-import stroom.entity.shared.DocRefUtil;
 import stroom.entity.shared.SharedDocRef;
 import stroom.feed.server.FeedService;
 import stroom.feed.shared.Feed;
-import stroom.pipeline.server.PipelineService;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.server.PipelineDocumentService;
+import stroom.docstore.shared.DocRefUtil;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.pipeline.shared.stepping.GetPipelineForStreamAction;
 import stroom.security.SecurityHelper;
 import stroom.query.api.v2.DocRef;
@@ -43,17 +43,17 @@ import java.util.List;
 @Scope(value = StroomScope.TASK)
 public class GetPipelineForStreamHandler extends AbstractTaskHandler<GetPipelineForStreamAction, SharedDocRef> {
     private final StreamStore streamStore;
-    private final PipelineService pipelineService;
+    private final PipelineDocumentService pipelineDocumentService;
     private final FeedService feedService;
     private final SecurityContext securityContext;
 
     @Inject
     GetPipelineForStreamHandler(final StreamStore streamStore,
-                                final PipelineService pipelineService,
+                                final PipelineDocumentService pipelineDocumentService,
                                 final FeedService feedService,
                                 final SecurityContext securityContext) {
         this.streamStore = streamStore;
-        this.pipelineService = pipelineService;
+        this.pipelineDocumentService = pipelineDocumentService;
         this.feedService = feedService;
         this.securityContext = securityContext;
     }
@@ -89,12 +89,12 @@ public class GetPipelineForStreamHandler extends AbstractTaskHandler<GetPipeline
 //
 //                    final Folder folder = feed.getFolder();
 //                    if (folder != null) {
-//                        final FindPipelineEntityCriteria findPipelineCriteria = new FindPipelineEntityCriteria();
+//                        final FindPipelineDocumentCriteria findPipelineCriteria = new FindPipelineDocumentCriteria();
 //                        findPipelineCriteria.getFolderIdSet().add(folder);
-//                        final List<PipelineEntity> pipelines = pipelineService.find(findPipelineCriteria);
+//                        final List<PipelineDocument> pipelines = pipelineDocumentService.find(findPipelineCriteria);
 //                        if (pipelines != null && pipelines.size() > 0) {
-//                            final PipelineEntity pipelineEntity = pipelines.get(0);
-//                            docRef = DocRefUtil.create(pipelineEntity);
+//                            final PipelineDocument pipelineDocument = pipelines.get(0);
+//                            docRef = DocRefUtil.create(pipelineDocument);
 //                        }
 //                    }
 //                }
@@ -110,7 +110,7 @@ public class GetPipelineForStreamHandler extends AbstractTaskHandler<GetPipeline
             try (SecurityHelper securityHelper = SecurityHelper.processingUser(securityContext)) {
                 final FindStreamCriteria criteria = new FindStreamCriteria();
                 criteria.getFetchSet().add(StreamProcessor.ENTITY_TYPE);
-                criteria.getFetchSet().add(PipelineEntity.ENTITY_TYPE);
+//                criteria.getFetchSet().add(PipelineDocument.DOCUMENT_TYPE);
                 criteria.getFetchSet().add(Feed.ENTITY_TYPE);
 
                 criteria.obtainStreamIdSet().add(id);
@@ -129,7 +129,7 @@ public class GetPipelineForStreamHandler extends AbstractTaskHandler<GetPipeline
             try (SecurityHelper securityHelper = SecurityHelper.processingUser(securityContext)) {
                 final FindStreamCriteria criteria = new FindStreamCriteria();
                 criteria.getFetchSet().add(StreamProcessor.ENTITY_TYPE);
-                criteria.getFetchSet().add(PipelineEntity.ENTITY_TYPE);
+//                criteria.getFetchSet().add(PipelineDocument.DOCUMENT_TYPE);
                 criteria.obtainParentStreamIdSet().add(id);
                 return streamStore.find(criteria).getFirst();
             }
@@ -145,12 +145,12 @@ public class GetPipelineForStreamHandler extends AbstractTaskHandler<GetPipeline
         // used to produce children for this stream.
         final StreamProcessor streamProcessor = stream.getStreamProcessor();
         if (streamProcessor != null) {
-            PipelineEntity pipelineEntity = streamProcessor.getPipeline();
-            if (pipelineEntity != null) {
+            String pipelineUuid = streamProcessor.getPipelineUuid();
+            if (pipelineUuid != null) {
                 try {
                     // Ensure the current user is allowed to load this pipeline.
-                    pipelineEntity = pipelineService.loadByUuid(pipelineEntity.getUuid());
-                    docRef = DocRefUtil.create(pipelineEntity);
+                    final PipelineDocument pipelineDocument = pipelineDocumentService.read(pipelineUuid);
+                    docRef = DocRefUtil.create(pipelineDocument);
                 } catch (final Exception e) {
                     // Ignore.
                 }

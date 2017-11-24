@@ -19,7 +19,7 @@ package stroom.streamtask.server;
 
 import stroom.entity.server.BaseEntityService;
 import stroom.entity.server.FindService;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.streamstore.shared.QueryData;
 import stroom.streamtask.shared.FindStreamProcessorFilterCriteria;
 import stroom.streamtask.shared.StreamProcessor;
@@ -31,7 +31,7 @@ public interface StreamProcessorFilterService
                                int priority,
                                QueryData queryData);
 
-    StreamProcessorFilter createNewFilter(PipelineEntity pipeline,
+    StreamProcessorFilter createNewFilter(PipelineDocument pipeline,
                                           QueryData queryData,
                                           boolean enabled,
                                           int priority);

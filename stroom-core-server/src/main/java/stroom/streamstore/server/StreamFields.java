@@ -3,7 +3,7 @@ package stroom.streamstore.server;
 import stroom.datasource.api.v2.DataSourceField;
 import stroom.datasource.api.v2.DataSourceField.DataSourceFieldType;
 import stroom.feed.shared.Feed;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.query.api.v2.ExpressionTerm.Condition;
 import stroom.streamstore.shared.Stream;
 import stroom.streamstore.shared.StreamType;
@@ -43,7 +43,7 @@ public final class StreamFields {
 
         STREAM_TYPE_FIELDS.put(STREAM_TYPE, StreamType.NAME);
 
-        PIPELINE_FIELDS.put(PIPELINE, PipelineEntity.NAME);
+        PIPELINE_FIELDS.put(PIPELINE, PipelineDocument.NAME);
 
         // TODO : Don't include these fields for now as the processing required to fetch attributes for each stream will be slow.
 //        STREAM_ATTRIBUTE_FIELDS.put(StreamAttributeConstants.REC_READ, StreamAttributeConstants.REC_READ);

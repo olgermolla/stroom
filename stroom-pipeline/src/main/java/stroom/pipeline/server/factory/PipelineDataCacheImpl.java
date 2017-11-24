@@ -24,7 +24,7 @@ import stroom.entity.server.DocumentPermissionCache;
 import stroom.entity.shared.DocRefUtil;
 import stroom.entity.shared.PermissionException;
 import stroom.pipeline.shared.PipelineDataMerger;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.pipeline.shared.PipelineModelException;
 import stroom.pipeline.shared.data.PipelineData;
 import stroom.security.SecurityHelper;
@@ -45,7 +45,7 @@ public class PipelineDataCacheImpl implements PipelineDataCache {
     private static final int MAX_CACHE_ENTRIES = 1000;
 
     private final PipelineStackLoader pipelineStackLoader;
-    private final LoadingCache<VersionedEntityDecorator<PipelineEntity>, PipelineData> cache;
+    private final LoadingCache<VersionedEntityDecorator<PipelineDocument>, PipelineData> cache;
     private final SecurityContext securityContext;
     private final DocumentPermissionCache documentPermissionCache;
 
@@ -59,7 +59,7 @@ public class PipelineDataCacheImpl implements PipelineDataCache {
         this.securityContext = securityContext;
         this.documentPermissionCache = documentPermissionCache;
 
-        final CacheLoader<VersionedEntityDecorator<PipelineEntity>, PipelineData> cacheLoader = CacheLoader.from(this::create);
+        final CacheLoader<VersionedEntityDecorator<PipelineDocument>, PipelineData> cacheLoader = CacheLoader.from(this::create);
         final CacheBuilder cacheBuilder = CacheBuilder.newBuilder()
                 .maximumSize(MAX_CACHE_ENTRIES)
                 .expireAfterAccess(10, TimeUnit.MINUTES);
@@ -68,22 +68,22 @@ public class PipelineDataCacheImpl implements PipelineDataCache {
     }
 
     @Override
-    public PipelineData get(final PipelineEntity pipelineEntity) {
-        if (!documentPermissionCache.hasDocumentPermission(pipelineEntity.getType(), pipelineEntity.getUuid(), DocumentPermissionNames.USE)) {
-            throw new PermissionException(securityContext.getUserId(), "You do not have permission to use " + DocRefUtil.create(pipelineEntity));
+    public PipelineData get(final PipelineDocument pipelineDocument) {
+        if (!documentPermissionCache.hasDocumentPermission(pipelineDocument.getType(), pipelineDocument.getUuid(), DocumentPermissionNames.USE)) {
+            throw new PermissionException(securityContext.getUserId(), "You do not have permission to use " + DocRefUtil.create(pipelineDocument));
         }
 
-        return cache.getUnchecked(new VersionedEntityDecorator<>(pipelineEntity));
+        return cache.getUnchecked(new VersionedEntityDecorator<>(pipelineDocument));
     }
 
     private PipelineData create(final VersionedEntityDecorator key) {
         try (SecurityHelper securityHelper = SecurityHelper.processingUser(securityContext)) {
-            final PipelineEntity pipelineEntity = (PipelineEntity) key.getEntity();
-            final List<PipelineEntity> pipelines = pipelineStackLoader.loadPipelineStack(pipelineEntity);
+            final PipelineDocument pipelineDocument = (PipelineDocument) key.getEntity();
+            final List<PipelineDocument> pipelines = pipelineStackLoader.loadPipelineStack(pipelineDocument);
             // Iterate over the pipeline list reading the deepest ancestor first.
             final List<PipelineData> configStack = new ArrayList<>(pipelines.size());
 
-            for (final PipelineEntity pipe : pipelines) {
+            for (final PipelineDocument pipe : pipelines) {
                 final PipelineData pipelineData = pipe.getPipelineData();
                 if (pipelineData != null) {
                     configStack.add(pipelineData);

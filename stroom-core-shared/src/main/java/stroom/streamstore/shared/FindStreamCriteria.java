@@ -19,6 +19,7 @@ package stroom.streamstore.shared;
 import stroom.entity.shared.BaseCriteria;
 import stroom.entity.shared.Copyable;
 import stroom.entity.shared.CriteriaSet;
+import stroom.entity.shared.DocRefSet;
 import stroom.entity.shared.EntityIdSet;
 import stroom.entity.shared.HasIsConstrained;
 import stroom.entity.shared.IdRange;
@@ -26,7 +27,6 @@ import stroom.entity.shared.IncludeExcludeEntityIdSet;
 import stroom.entity.shared.Matcher;
 import stroom.entity.shared.Period;
 import stroom.feed.shared.Feed;
-import stroom.pipeline.shared.PipelineEntity;
 import stroom.streamtask.shared.StreamProcessor;
 import stroom.util.shared.EqualsBuilder;
 import stroom.util.shared.HashCodeBuilder;
@@ -59,7 +59,7 @@ public class FindStreamCriteria extends BaseCriteria
     private EntityIdSet<Feed> feedIdSet;
 
     private IncludeExcludeEntityIdSet<Feed> feeds;
-    private EntityIdSet<PipelineEntity> pipelineIdSet;
+    private DocRefSet pipelineSet;
     private EntityIdSet<StreamType> streamTypeIdSet;
     private EntityIdSet<Stream> streamIdSet;
     private CriteriaSet<StreamStatus> statusSet;
@@ -99,8 +99,8 @@ public class FindStreamCriteria extends BaseCriteria
                 return false;
             }
         }
-        if (pipelineIdSet != null) {
-            if (!pipelineIdSet.isMatch(stream.getStreamProcessor().getPipeline())) {
+        if (pipelineSet != null) {
+            if (!pipelineSet.isMatch(stream.getStreamProcessor().getPipelineUuid())) {
                 return false;
             }
         }
@@ -156,7 +156,7 @@ public class FindStreamCriteria extends BaseCriteria
         if (feeds != null && feeds.isConstrained()) {
             return true;
         }
-        if (pipelineIdSet != null && pipelineIdSet.isConstrained()) {
+        if (pipelineSet != null && pipelineSet.isConstrained()) {
             return true;
         }
         if (streamTypeIdSet != null && streamTypeIdSet.isConstrained()) {
@@ -263,19 +263,19 @@ public class FindStreamCriteria extends BaseCriteria
         this.feedIdSet = null;
     }
 
-    public EntityIdSet<PipelineEntity> getPipelineIdSet() {
-        return pipelineIdSet;
+    public DocRefSet getPipelineSet() {
+        return pipelineSet;
     }
 
-    public void setPipelineIdSet(final EntityIdSet<PipelineEntity> pipelineIdSet) {
-        this.pipelineIdSet = pipelineIdSet;
+    public void setPipelineSet(final DocRefSet pipelineSet) {
+        this.pipelineSet = pipelineSet;
     }
 
-    public EntityIdSet<PipelineEntity> obtainPipelineIdSet() {
-        if (pipelineIdSet == null) {
-            pipelineIdSet = new EntityIdSet<>();
+    public DocRefSet obtainPipelineSet() {
+        if (pipelineSet == null) {
+            pipelineSet = new DocRefSet();
         }
-        return pipelineIdSet;
+        return pipelineSet;
     }
 
     public EntityIdSet<StreamType> getStreamTypeIdSet() {
@@ -404,7 +404,7 @@ public class FindStreamCriteria extends BaseCriteria
         final HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(streamProcessorIdSet);
         builder.append(feeds);
-        builder.append(pipelineIdSet);
+        builder.append(pipelineSet);
         builder.append(streamTypeIdSet);
         builder.append(streamIdSet);
         builder.append(statusSet);
@@ -432,7 +432,7 @@ public class FindStreamCriteria extends BaseCriteria
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(this.streamProcessorIdSet, other.streamProcessorIdSet);
         builder.append(this.feeds, other.feeds);
-        builder.append(this.pipelineIdSet, other.pipelineIdSet);
+        builder.append(this.pipelineSet, other.pipelineSet);
         builder.append(this.streamTypeIdSet, other.streamTypeIdSet);
         builder.append(this.streamIdSet, other.streamIdSet);
         builder.append(this.statusSet, other.statusSet);
@@ -452,7 +452,7 @@ public class FindStreamCriteria extends BaseCriteria
     public void copyFrom(final FindStreamCriteria other) {
         this.obtainStreamProcessorIdSet().copyFrom(other.obtainStreamProcessorIdSet());
         this.obtainFeeds().copyFrom(other.obtainFeeds());
-        this.obtainPipelineIdSet().copyFrom(other.obtainPipelineIdSet());
+        this.obtainPipelineSet().copyFrom(other.obtainPipelineSet());
         this.obtainStreamTypeIdSet().copyFrom(other.obtainStreamTypeIdSet());
         this.obtainStreamIdSet().copyFrom(other.obtainStreamIdSet());
         this.obtainStatusSet().copyFrom(other.obtainStatusSet());

@@ -18,6 +18,7 @@ package stroom.entity.server.util;
 
 import stroom.entity.shared.BaseCriteria;
 import stroom.entity.shared.CriteriaSet;
+import stroom.entity.shared.DocRefSet;
 import stroom.entity.shared.EntityIdSet;
 import stroom.entity.shared.HasPrimitiveValue;
 import stroom.entity.shared.IncludeExcludeEntityIdSet;
@@ -253,6 +254,47 @@ public abstract class AbstractSqlBuilder extends CoreSqlBuilder {
     }
 
     abstract void appendEntityIdSet(String fieldOrEntity, EntityIdSet<?> set);
+
+    /**
+     * <p>
+     * Add a set query like A in ('A','B').
+     * </p>
+     */
+    public void appendDocRefSetQuery(final String fieldOrEntity,
+                                       final DocRefSet set) {
+        if (set != null && set.isConstrained()) {
+            append(" AND");
+            internalAppendDocRefSetQuery(fieldOrEntity, set);
+        }
+    }
+
+    private void internalAppendDocRefSetQuery(final String fieldOrEntity,
+                                                final DocRefSet set) {
+        if (set.isMatchNothing()) {
+            // Force the query to return nothing if the set is empty.
+            append(" 1=2");
+
+        } else if (Boolean.TRUE.equals(set.getMatchNull())) {
+            append(" ");
+
+            if (set.size() > 0) {
+                append("(");
+                appendDocRefSet(fieldOrEntity, set);
+                append(" OR ");
+                appendNull(fieldOrEntity);
+                append(")");
+
+            } else {
+                appendNull(fieldOrEntity);
+            }
+
+        } else {
+            append(" ");
+            appendDocRefSet(fieldOrEntity, set);
+        }
+    }
+
+    abstract void appendDocRefSet(String fieldOrEntity, DocRefSet set);
 
     /**
      * <p>

@@ -32,9 +32,9 @@ import stroom.jobsystem.shared.JobManager;
 import stroom.node.server.NodeService;
 import stroom.node.shared.FindNodeCriteria;
 import stroom.node.shared.Node;
-import stroom.pipeline.server.PipelineService;
-import stroom.pipeline.shared.FindPipelineEntityCriteria;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.server.PipelineDocumentService;
+import stroom.pipeline.shared.FindPipelineDocumentCriteria;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.statistics.server.sql.StatisticEvent;
 import stroom.statistics.server.sql.StatisticTag;
 import stroom.statistics.server.sql.Statistics;
@@ -83,7 +83,7 @@ public class BenchmarkClusterExecutor extends AbstractBenchmark {
     private static final String BENCHMARK_EVENTS = "BENCHMARK-EVENTS";
 
     private final FeedService feedService;
-    private final PipelineService pipelineService;
+    private final PipelineDocumentService pipelineDocumentService;
     private final StreamProcessorFilterService streamProcessorFilterService;
     private final StreamProcessorService streamProcessorService;
     private final ClusterDispatchAsyncHelper dispatchHelper;
@@ -107,7 +107,7 @@ public class BenchmarkClusterExecutor extends AbstractBenchmark {
 
     @Inject
     BenchmarkClusterExecutor(final FeedService feedService,
-                             final PipelineService pipelineService,
+                             final PipelineDocumentService pipelineDocumentService,
                              final StreamProcessorFilterService streamProcessorFilterService,
                              final StreamProcessorService streamProcessorService,
                              final ClusterDispatchAsyncHelper dispatchHelper,
@@ -122,7 +122,7 @@ public class BenchmarkClusterExecutor extends AbstractBenchmark {
                              @Value("#{propertyConfigurer.getProperty('stroom.benchmark.recordCount')}") final int recordCount,
                              @Value("#{propertyConfigurer.getProperty('stroom.benchmark.concurrentWriters')}") final int concurrentWriters) {
         this.feedService = feedService;
-        this.pipelineService = pipelineService;
+        this.pipelineDocumentService = pipelineDocumentService;
         this.streamProcessorFilterService = streamProcessorFilterService;
         this.streamProcessorService = streamProcessorService;
         this.dispatchHelper = dispatchHelper;
@@ -205,11 +205,11 @@ public class BenchmarkClusterExecutor extends AbstractBenchmark {
                 dispatchHelper.execAsync(new ClearServiceClusterTask(task, null), TargetType.ACTIVE);
 
                 final Feed referenceFeed = feedService.find(new FindFeedCriteria(BENCHMARK_REFERENCE)).getFirst();
-                final PipelineEntity referencePipeline = pipelineService
-                        .find(new FindPipelineEntityCriteria(BENCHMARK_REFERENCE)).getFirst();
+                final PipelineDocument referencePipeline = pipelineDocumentService
+                        .find(new FindPipelineDocumentCriteria(BENCHMARK_REFERENCE)).getFirst();
                 final Feed eventFeed = feedService.find(new FindFeedCriteria(BENCHMARK_EVENTS)).getFirst();
-                final PipelineEntity eventsPipeline = pipelineService
-                        .find(new FindPipelineEntityCriteria(BENCHMARK_EVENTS)).getFirst();
+                final PipelineDocument eventsPipeline = pipelineDocumentService
+                        .find(new FindPipelineDocumentCriteria(BENCHMARK_EVENTS)).getFirst();
 
                 // Not setup to run benchmark
                 if (referenceFeed == null || referencePipeline == null || eventFeed == null || eventsPipeline == null) {
@@ -259,16 +259,16 @@ public class BenchmarkClusterExecutor extends AbstractBenchmark {
         }
     }
 
-    private StreamProcessor initProcessor(final PipelineEntity pipelineEntity) {
+    private StreamProcessor initProcessor(final PipelineDocument pipelineDocument) {
         // Clear off any old processors
         for (final StreamProcessorFilter streamProcessorFilter : streamProcessorFilterService
-                .find(new FindStreamProcessorFilterCriteria(pipelineEntity))) {
+                .find(new FindStreamProcessorFilterCriteria(pipelineDocument))) {
             streamProcessorFilterService.delete(streamProcessorFilter);
         }
-        StreamProcessor streamProcessor = streamProcessorService.find(new FindStreamProcessorCriteria(pipelineEntity))
+        StreamProcessor streamProcessor = streamProcessorService.find(new FindStreamProcessorCriteria(pipelineDocument))
                 .getFirst();
         if (streamProcessor == null) {
-            streamProcessor = new StreamProcessor(pipelineEntity);
+            streamProcessor = new StreamProcessor(pipelineDocument);
             streamProcessor.setEnabled(true);
             streamProcessor = streamProcessorService.save(streamProcessor);
         }
@@ -554,7 +554,7 @@ public class BenchmarkClusterExecutor extends AbstractBenchmark {
     //
     // final FindStreamCriteria criteria = new FindStreamCriteria();
     // criteria.getFeedIdSet().add(feed);
-    // //criteria.getPipelineIdSet().add(pipeline);
+    // //criteria.getPipelineSet().add(pipeline);
     // //criteria.setReceivedPeriod(new Period(startTimeMs, null));
     //
     // //final List<Stream> completedTasks =

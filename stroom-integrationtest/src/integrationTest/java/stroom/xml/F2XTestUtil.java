@@ -30,7 +30,7 @@ import stroom.pipeline.server.factory.PipelineFactory;
 import stroom.pipeline.server.parser.CombinedParser;
 import stroom.pipeline.server.writer.TestAppender;
 import stroom.pipeline.shared.PipelineDataMerger;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.pipeline.shared.TextConverter;
 import stroom.pipeline.shared.TextConverter.TextConverterType;
 import stroom.pipeline.shared.XSLT;
@@ -113,9 +113,9 @@ public class F2XTestUtil {
         errorReceiverProxy.setErrorReceiver(loggingErrorReceiver);
 
         // Create the pipeline.
-        final PipelineEntity pipelineEntity = PipelineTestUtil.createBasicPipeline(
+        final PipelineDocument pipelineDocument = PipelineTestUtil.createBasicPipeline(
                 StroomPipelineTestFileUtil.getString("F2XTestUtil/f2xtest.Pipeline.data.xml"));
-        final PipelineData pipelineData = pipelineEntity.getPipelineData();
+        final PipelineData pipelineData = pipelineDocument.getPipelineData();
 
         // final ElementType parserElementType = new ElementType("Parser");
         // final PropertyType textConverterPropertyType = new PropertyType(
@@ -180,9 +180,9 @@ public class F2XTestUtil {
         errorReceiverProxy.setErrorReceiver(loggingErrorReceiver);
 
         // Create the pipeline.
-        final PipelineEntity pipelineEntity = PipelineTestUtil.createBasicPipeline(
+        final PipelineDocument pipelineDocument = PipelineTestUtil.createBasicPipeline(
                 StroomPipelineTestFileUtil.getString("F2XTestUtil/f2xtest.Pipeline.data.xml"));
-        final PipelineData pipelineData = pipelineEntity.getPipelineData();
+        final PipelineData pipelineData = pipelineDocument.getPipelineData();
 
         // final ElementType parserElementType = new ElementType("Parser");
         // final PropertyType textConverterPropertyType = new PropertyType(

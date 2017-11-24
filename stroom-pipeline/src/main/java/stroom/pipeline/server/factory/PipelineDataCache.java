@@ -16,9 +16,9 @@
 
 package stroom.pipeline.server.factory;
 
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.pipeline.shared.data.PipelineData;
 
 public interface PipelineDataCache {
-    PipelineData get(PipelineEntity pipelineEntity);
+    PipelineData get(PipelineDocument pipelineDocument);
 }

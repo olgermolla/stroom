@@ -20,7 +20,7 @@ package stroom.process.server;
 import org.springframework.context.annotation.Scope;
 import stroom.entity.shared.BaseResultList;
 import stroom.entity.shared.ResultList;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.process.shared.FetchProcessorAction;
 import stroom.process.shared.StreamProcessorFilterRow;
 import stroom.process.shared.StreamProcessorRow;
@@ -62,9 +62,9 @@ public class FetchProcessorHandler extends AbstractTaskHandler<FetchProcessorAct
 
         final FindStreamProcessorFilterCriteria criteria = new FindStreamProcessorFilterCriteria();
         final FindStreamProcessorCriteria criteriaRoot = new FindStreamProcessorCriteria();
-        if (action.getPipelineId() != null) {
-            criteria.obtainPipelineIdSet().add(action.getPipelineId());
-            criteriaRoot.obtainPipelineIdSet().add(action.getPipelineId());
+        if (action.getPipelineUuid() != null) {
+            criteria.obtainPipelineSet().add(action.getPipelineUuid());
+            criteriaRoot.obtainPipelineSet().add(action.getPipelineUuid());
         }
 
         // If the user is not an admin then only show them filters that were created by them.
@@ -73,8 +73,8 @@ public class FetchProcessorHandler extends AbstractTaskHandler<FetchProcessorAct
         }
 
         criteria.getFetchSet().add(StreamProcessor.ENTITY_TYPE);
-        criteria.getFetchSet().add(PipelineEntity.ENTITY_TYPE);
-        criteriaRoot.getFetchSet().add(PipelineEntity.ENTITY_TYPE);
+//        criteria.getFetchSet().add(PipelineDocument.ENTITY_TYPE);
+//        criteriaRoot.getFetchSet().add(PipelineDocument.ENTITY_TYPE);
 
         final BaseResultList<StreamProcessor> streamProcessors = streamProcessorService.find(criteriaRoot);
 
@@ -87,13 +87,13 @@ public class FetchProcessorHandler extends AbstractTaskHandler<FetchProcessorAct
 
         final List<StreamProcessor> sorted = new ArrayList<>(processors);
         Collections.sort(sorted, (o1, o2) -> {
-            if (o1.getPipeline() != null && o2.getPipeline() != null) {
-                return o1.getPipeline().getName().compareTo(o2.getPipeline().getName());
+            if (o1.getPipelineUuid() != null && o2.getPipelineUuid() != null) {
+                return o1.getPipelineUuid().compareTo(o2.getPipelineUuid());
             }
-            if (o1.getPipeline() != null) {
+            if (o1.getPipelineUuid() != null) {
                 return -1;
             }
-            if (o2.getPipeline() != null) {
+            if (o2.getPipelineUuid() != null) {
                 return 1;
             }
             return o1.compareTo(o2);

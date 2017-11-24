@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import stroom.entity.shared.DocRefUtil;
 import stroom.feed.shared.Feed;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.util.cache.CacheManager;
 import stroom.util.test.StroomJUnit4ClassRunner;
 import stroom.util.test.StroomUnitTest;
@@ -47,8 +47,8 @@ public class TestCache extends StroomUnitTest {
 
             String eventString = null;
 
-            PipelineEntity pipelineEntity = new PipelineEntity();
-            pipelineEntity.setUuid("12345");
+            PipelineDocument pipelineDocument = new PipelineDocument();
+            pipelineDocument.setUuid("12345");
 
             long time = System.currentTimeMillis();
             for (int i = 0; i < MAX_CACHE_ITEMS; i++) {
@@ -56,7 +56,7 @@ public class TestCache extends StroomUnitTest {
                 feed.setName("test " + i);
                 feed.setReference(true);
                 feed.setId(i);
-                final MapStoreCacheKey mapStorePoolKey = new MapStoreCacheKey(DocRefUtil.create(pipelineEntity), 1);
+                final MapStoreCacheKey mapStorePoolKey = new MapStoreCacheKey(DocRefUtil.create(pipelineDocument), 1);
                 final MapStore mapStore = mapStoreCache.get(mapStorePoolKey);
                 final EventList eventList = mapStore.getEvents("TEST_MAP_NAME", "TEST_KEY_NAME");
                 if (eventString == null) {
@@ -73,7 +73,7 @@ public class TestCache extends StroomUnitTest {
                 feed.setName("test " + i);
                 feed.setReference(true);
                 feed.setId(i);
-                final MapStoreCacheKey mapStoreCacheKey = new MapStoreCacheKey(DocRefUtil.create(pipelineEntity), 1);
+                final MapStoreCacheKey mapStoreCacheKey = new MapStoreCacheKey(DocRefUtil.create(pipelineDocument), 1);
                 final MapStore mapStore = mapStoreCache.get(mapStoreCacheKey);
                 final EventList eventList = mapStore.getEvents("TEST_MAP_NAME", "TEST_KEY_NAME");
                 if (eventString == null) {

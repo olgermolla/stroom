@@ -36,13 +36,13 @@ import stroom.document.client.event.RefreshDocumentEvent;
 import stroom.editor.client.presenter.EditorPresenter;
 import stroom.entity.client.presenter.HasRead;
 import stroom.entity.client.presenter.HasWrite;
-import stroom.entity.shared.DocRefUtil;
 import stroom.explorer.client.presenter.EntityDropDownPresenter;
 import stroom.explorer.shared.ExplorerNode;
+import stroom.docstore.shared.DocRefUtil;
 import stroom.pipeline.shared.FetchPipelineDataAction;
 import stroom.pipeline.shared.FetchPipelineXMLAction;
 import stroom.pipeline.shared.FetchPropertyTypesAction;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.pipeline.shared.PipelineModelException;
 import stroom.pipeline.shared.SavePipelineXMLAction;
 import stroom.pipeline.shared.data.PipelineData;
@@ -80,7 +80,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 public class PipelineStructurePresenter extends MyPresenterWidget<PipelineStructurePresenter.PipelineStructureView>
-        implements HasRead<PipelineEntity>, HasWrite<PipelineEntity>, HasDirtyHandlers, PipelineStructureUiHandlers {
+        implements HasRead<PipelineDocument>, HasWrite<PipelineDocument>, HasDirtyHandlers, PipelineStructureUiHandlers {
     private final EntityDropDownPresenter pipelinePresenter;
     private final MenuListPresenter menuListPresenter;
     private final ClientDispatchAsync dispatcher;
@@ -92,7 +92,7 @@ public class PipelineStructurePresenter extends MyPresenterWidget<PipelineStruct
     private boolean dirty;
     private PipelineElement selectedElement;
     private PipelineModel pipelineModel;
-    private PipelineEntity pipelineEntity;
+    private PipelineDocument pipelineDocument;
     private DocRef parentPipeline;
     private Map<Category, List<PipelineElementType>> elementTypes;
     private boolean advancedMode;
@@ -123,7 +123,7 @@ public class PipelineStructurePresenter extends MyPresenterWidget<PipelineStruct
         getView().setProperties(propertyListPresenter.getView());
         getView().setPipelineReferences(pipelineReferenceListPresenter.getView());
 
-        pipelinePresenter.setIncludedTypes(PipelineEntity.ENTITY_TYPE);
+        pipelinePresenter.setIncludedTypes(PipelineDocument.DOCUMENT_TYPE);
         pipelinePresenter.setRequiredPermissions(DocumentPermissionNames.USE);
 
         // Get a map of all available elements and properties.
@@ -166,7 +166,7 @@ public class PipelineStructurePresenter extends MyPresenterWidget<PipelineStruct
         registerHandler(pipelinePresenter.addDataSelectionHandler(event -> {
             if (event.getSelectedItem() != null) {
                 final ExplorerNode entityData = (ExplorerNode) event.getSelectedItem();
-                if (EqualsUtil.isEquals(entityData.getDocRef().getUuid(), pipelineEntity.getUuid())) {
+                if (EqualsUtil.isEquals(entityData.getDocRef().getUuid(), pipelineDocument.getUuid())) {
                     AlertEvent.fireWarn(PipelineStructurePresenter.this, "A pipeline cannot inherit from itself",
                             () -> {
                                 // Reset selection.
@@ -183,11 +183,11 @@ public class PipelineStructurePresenter extends MyPresenterWidget<PipelineStruct
                 pipelineTreePresenter.getSelectionModel().addSelectionChangeHandler(event -> {
                     selectedElement = pipelineTreePresenter.getSelectionModel().getSelectedObject();
 
-                    propertyListPresenter.setPipeline(pipelineEntity);
+                    propertyListPresenter.setPipeline(pipelineDocument);
                     propertyListPresenter.setPipelineModel(pipelineModel);
                     propertyListPresenter.setCurrentElement(selectedElement);
 
-                    pipelineReferenceListPresenter.setPipeline(pipelineEntity);
+                    pipelineReferenceListPresenter.setPipeline(pipelineDocument);
                     pipelineReferenceListPresenter.setPipelineModel(pipelineModel);
                     pipelineReferenceListPresenter.setCurrentElement(selectedElement);
 
@@ -206,10 +206,10 @@ public class PipelineStructurePresenter extends MyPresenterWidget<PipelineStruct
     }
 
     @Override
-    public void read(final PipelineEntity pipelineEntity) {
+    public void read(final PipelineDocument pipelineDocument) {
         final PipelineElement previousSelection = this.selectedElement;
 
-        this.pipelineEntity = pipelineEntity;
+        this.pipelineDocument = pipelineDocument;
         this.selectedElement = null;
 
         if (pipelineModel == null) {
@@ -217,12 +217,12 @@ public class PipelineStructurePresenter extends MyPresenterWidget<PipelineStruct
             pipelineTreePresenter.setModel(pipelineModel);
         }
 
-        if (pipelineEntity.getParentPipeline() != null) {
-            this.parentPipeline = pipelineEntity.getParentPipeline();
+        if (pipelineDocument.getParentPipeline() != null) {
+            this.parentPipeline = pipelineDocument.getParentPipeline();
         }
-        pipelinePresenter.setSelectedEntityReference(pipelineEntity.getParentPipeline());
+        pipelinePresenter.setSelectedEntityReference(pipelineDocument.getParentPipeline());
 
-        final FetchPipelineDataAction action = new FetchPipelineDataAction(DocRefUtil.create(pipelineEntity));
+        final FetchPipelineDataAction action = new FetchPipelineDataAction(DocRefUtil.create(pipelineDocument));
         dispatcher.exec(action).onSuccess(result -> {
             final PipelineData pipelineData = result.get(result.size() - 1);
             final List<PipelineData> baseStack = new ArrayList<>(result.size() - 1);
@@ -250,7 +250,7 @@ public class PipelineStructurePresenter extends MyPresenterWidget<PipelineStruct
     }
 
     @Override
-    public void write(final PipelineEntity pipeline) {
+    public void write(final PipelineDocument pipeline) {
         // Only write if we have been revealed and therefore created a pipeline
         // model.
         if (pipelineModel != null) {
@@ -473,7 +473,7 @@ public class PipelineStructurePresenter extends MyPresenterWidget<PipelineStruct
                 }
             };
 
-            dispatcher.exec(new FetchPipelineXMLAction(DocRefUtil.create(pipelineEntity))).onSuccess(result -> {
+            dispatcher.exec(new FetchPipelineXMLAction(DocRefUtil.create(pipelineDocument))).onSuccess(result -> {
                 String text = "";
                 if (result != null) {
                     text = result.toString();
@@ -498,11 +498,11 @@ public class PipelineStructurePresenter extends MyPresenterWidget<PipelineStruct
     }
 
     private void doActualSave(final EditorPresenter xmlEditor) {
-        dispatcher.exec(new SavePipelineXMLAction(DocRefUtil.create(pipelineEntity), xmlEditor.getText())).onSuccess(result -> {
+        dispatcher.exec(new SavePipelineXMLAction(DocRefUtil.create(pipelineDocument), xmlEditor.getText())).onSuccess(result -> {
             // Hide the popup.
             HidePopupEvent.fire(PipelineStructurePresenter.this, xmlEditor, false, true);
             // Reload the entity.
-            RefreshDocumentEvent.fire(PipelineStructurePresenter.this, DocRefUtil.create(pipelineEntity));
+            RefreshDocumentEvent.fire(PipelineStructurePresenter.this, DocRefUtil.create(pipelineDocument));
         });
     }
 

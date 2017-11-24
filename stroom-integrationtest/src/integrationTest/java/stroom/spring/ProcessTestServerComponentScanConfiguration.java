@@ -42,13 +42,13 @@ import stroom.node.server.NodeConfigImpl;
 import stroom.node.server.NodeServiceImpl;
 import stroom.node.server.RecordCountServiceImpl;
 import stroom.pipeline.server.MockPipelineService;
-import stroom.pipeline.server.PipelineService;
+import stroom.pipeline.server.PipelineDocumentService;
 import stroom.pipeline.server.PipelineServiceImpl;
 import stroom.pipeline.server.TextConverterService;
 import stroom.pipeline.server.TextConverterServiceImpl;
 import stroom.pipeline.server.XSLTService;
 import stroom.pipeline.server.XSLTServiceImpl;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.pipeline.shared.TextConverter;
 import stroom.pipeline.shared.XSLT;
 import stroom.policy.server.DataRetentionExecutor;
@@ -182,15 +182,15 @@ public class ProcessTestServerComponentScanConfiguration {
                                                        final ImportExportActionHandlers importExportActionHandlers,
                                                        final TextConverterService textConverterService,
                                                        final XSLTService xsltService,
-                                                       final PipelineService pipelineService,
+                                                       final PipelineDocumentService pipelineDocumentService,
                                                        final XMLSchemaService xmlSchemaService) {
         explorerActionHandlers.add(4, TextConverter.ENTITY_TYPE, "Text Converter", textConverterService);
         explorerActionHandlers.add(5, XSLT.ENTITY_TYPE, XSLT.ENTITY_TYPE, xsltService);
-        explorerActionHandlers.add(6, PipelineEntity.ENTITY_TYPE, PipelineEntity.ENTITY_TYPE, pipelineService);
+        explorerActionHandlers.add(6, PipelineDocument.ENTITY_TYPE, PipelineDocument.ENTITY_TYPE, pipelineDocumentService);
         explorerActionHandlers.add(13, XMLSchema.ENTITY_TYPE, "XML Schema", xmlSchemaService);
         importExportActionHandlers.add(TextConverter.ENTITY_TYPE, textConverterService);
         importExportActionHandlers.add(XSLT.ENTITY_TYPE, xsltService);
-        importExportActionHandlers.add(PipelineEntity.ENTITY_TYPE, pipelineService);
+        importExportActionHandlers.add(PipelineDocument.ENTITY_TYPE, pipelineDocumentService);
         importExportActionHandlers.add(XMLSchema.ENTITY_TYPE, xmlSchemaService);
     }
 
@@ -204,9 +204,9 @@ public class ProcessTestServerComponentScanConfiguration {
         return feedService;
     }
 
-    @Bean(name = "cachedPipelineEntityService")
-    public MockPipelineService getCachedPipelineEntityService(final MockPipelineService pipelineService) {
-        return pipelineService;
+    @Bean(name = "cachedPipelineDocumentService")
+    public MockPipelineService getCachedPipelineDocumentService(final MockPipelineService pipelineDocumentService) {
+        return pipelineDocumentService;
     }
 
     @Bean(name = "cachedStreamProcessorService")

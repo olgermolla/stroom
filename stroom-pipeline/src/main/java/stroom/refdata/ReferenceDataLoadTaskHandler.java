@@ -25,7 +25,7 @@ import stroom.feed.shared.Feed;
 import stroom.io.StreamCloser;
 import stroom.pipeline.server.EncodingSelection;
 import stroom.pipeline.server.LocationFactoryProxy;
-import stroom.pipeline.server.PipelineService;
+import stroom.pipeline.server.PipelineDocumentService;
 import stroom.pipeline.server.StreamLocationFactory;
 import stroom.pipeline.server.errorhandler.ErrorReceiverIdDecorator;
 import stroom.pipeline.server.errorhandler.ErrorReceiverProxy;
@@ -33,7 +33,7 @@ import stroom.pipeline.server.errorhandler.StoredErrorReceiver;
 import stroom.pipeline.server.factory.Pipeline;
 import stroom.pipeline.server.factory.PipelineDataCache;
 import stroom.pipeline.server.factory.PipelineFactory;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.pipeline.shared.data.PipelineData;
 import stroom.pipeline.state.FeedHolder;
 import stroom.pipeline.state.PipelineHolder;
@@ -72,8 +72,8 @@ public class ReferenceDataLoadTaskHandler extends AbstractTaskHandler<ReferenceD
     private MapStoreHolder mapStoreHolder;
     @Resource(name = "cachedFeedService")
     private FeedService feedService;
-    @Resource(name = "cachedPipelineEntityService")
-    private PipelineService pipelineService;
+    @Resource(name = "cachedPipelineDocumentService")
+    private PipelineDocumentService pipelineDocumentService;
     @Resource
     private PipelineHolder pipelineHolder;
     @Resource
@@ -121,12 +121,12 @@ public class ReferenceDataLoadTaskHandler extends AbstractTaskHandler<ReferenceD
                     feedHolder.setFeed(feed);
 
                     // Set the pipeline so it can be used by a filter if needed.
-                    final PipelineEntity pipelineEntity = pipelineService
+                    final PipelineDocument pipelineDocument = pipelineDocumentService
                             .loadByUuid(mapStorePoolKey.getPipeline().getUuid());
-                    pipelineHolder.setPipeline(pipelineEntity);
+                    pipelineHolder.setPipeline(pipelineDocument);
 
                     // Create the parser.
-                    final PipelineData pipelineData = pipelineDataCache.get(pipelineEntity);
+                    final PipelineData pipelineData = pipelineDataCache.get(pipelineDocument);
                     final Pipeline pipeline = pipelineFactory.create(pipelineData);
 
                     populateMaps(pipeline, stream, streamSource, feed, stream.getStreamType(), mapStoreBuilder);

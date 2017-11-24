@@ -35,7 +35,6 @@ import stroom.data.client.event.HasDataSelectionHandlers;
 import stroom.dispatch.client.ClientDispatchAsync;
 import stroom.dispatch.client.ExportFileCompleteUtil;
 import stroom.entity.client.presenter.HasRead;
-import stroom.entity.shared.BaseEntity;
 import stroom.entity.shared.DocRefUtil;
 import stroom.entity.shared.EntityIdSet;
 import stroom.entity.shared.EntityServiceFindDeleteAction;
@@ -44,7 +43,7 @@ import stroom.entity.shared.ResultList;
 import stroom.entity.shared.SharedDocRef;
 import stroom.entity.shared.Sort.Direction;
 import stroom.feed.shared.Feed;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.pipeline.stepping.client.event.BeginPipelineSteppingEvent;
 import stroom.security.client.ClientSecurityContext;
 import stroom.streamstore.shared.DownloadDataAction;
@@ -70,7 +69,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class StreamPresenter extends MyPresenterWidget<StreamPresenter.StreamView>
-        implements HasDataSelectionHandlers<EntityIdSet<Stream>>, HasRead<BaseEntity>, BeginSteppingHandler {
+        implements HasDataSelectionHandlers<EntityIdSet<Stream>>, HasRead<Object>, BeginSteppingHandler {
     public static final String DATA = "DATA";
     public static final String STREAM_RELATION_LIST = "STREAM_RELATION_LIST";
     public static final String STREAM_LIST = "STREAM_LIST";
@@ -350,11 +349,11 @@ public class StreamPresenter extends MyPresenterWidget<StreamPresenter.StreamVie
     }
 
     @Override
-    public void read(final BaseEntity entity) {
+    public void read(final Object entity) {
         if (entity instanceof Feed) {
             setFeedCriteria((Feed) entity);
-        } else if (entity instanceof PipelineEntity) {
-            setPipelineCriteria((PipelineEntity) entity);
+        } else if (entity instanceof PipelineDocument) {
+            setPipelineCriteria((PipelineDocument) entity);
         } else {
             setNullCriteria();
         }
@@ -369,7 +368,7 @@ public class StreamPresenter extends MyPresenterWidget<StreamPresenter.StreamVie
         pageRequest.setOffset(0L);
 
         criteria.obtainFindStreamCriteria().getFetchSet().add(Feed.ENTITY_TYPE);
-        criteria.obtainFindStreamCriteria().getFetchSet().add(PipelineEntity.ENTITY_TYPE);
+//        criteria.obtainFindStreamCriteria().getFetchSet().add(PipelineDocument.ENTITY_TYPE);
         criteria.obtainFindStreamCriteria().getFetchSet().add(StreamProcessor.ENTITY_TYPE);
         criteria.obtainFindStreamCriteria().getFetchSet().add(StreamType.ENTITY_TYPE);
         criteria.obtainFindStreamCriteria().setSort(FindStreamCriteria.FIELD_CREATE_MS, Direction.DESCENDING, false);
@@ -392,12 +391,12 @@ public class StreamPresenter extends MyPresenterWidget<StreamPresenter.StreamVie
         initCriteria();
     }
 
-    private void setPipelineCriteria(final PipelineEntity pipelineEntity) {
+    private void setPipelineCriteria(final PipelineDocument pipelineDocument) {
         showStreamListButtons(false);
         showStreamRelationListButtons(false);
 
         findStreamAttributeMapCriteria = createFindStreamAttributeMapCriteria();
-        findStreamAttributeMapCriteria.obtainFindStreamCriteria().obtainPipelineIdSet().add(pipelineEntity);
+        findStreamAttributeMapCriteria.obtainFindStreamCriteria().obtainPipelineSet().add(stroom.docstore.shared.DocRefUtil.create(pipelineDocument));
 
         // As this is for a pipeline then we will show processed output.
         final FindStreamCriteria findStreamCriteria = findStreamAttributeMapCriteria.obtainFindStreamCriteria();
@@ -523,8 +522,8 @@ public class StreamPresenter extends MyPresenterWidget<StreamPresenter.StreamVie
             SharedDocRef pipelineRef = null;
 
             // TODO : Fix by making entity id sets docref sets.
-//            final EntityIdSet<PipelineEntity> entityIdSet = findStreamAttributeMapCriteria.obtainFindStreamCriteria()
-//                    .getPipelineIdSet();
+//            final EntityIdSet<PipelineDocument> entityIdSet = findStreamAttributeMapCriteria.obtainFindStreamCriteria()
+//                    .getPipelineSet();
 //            if (entityIdSet != null) {
 //                if (entityIdSet.getSet().size() > 0) {
 //                    pipelineRef = DocRef.create(entityIdSet.getSet().iterator().next());

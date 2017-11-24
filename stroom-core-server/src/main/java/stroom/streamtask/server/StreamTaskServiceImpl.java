@@ -33,7 +33,7 @@ import stroom.entity.shared.SQLNameConstants;
 import stroom.entity.shared.SummaryDataRow;
 import stroom.feed.shared.Feed;
 import stroom.node.shared.Node;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.security.Secured;
 import stroom.streamstore.server.StreamStore;
 import stroom.streamstore.shared.FindStreamCriteria;
@@ -78,8 +78,8 @@ public class StreamTaskServiceImpl extends SystemEntityServiceImpl<StreamTask, F
     public BaseResultList<SummaryDataRow> findSummary(final FindStreamTaskCriteria criteria) throws RuntimeException {
         final SqlBuilder sql = new SqlBuilder();
         sql.append("SELECT D.* FROM (");
-        sql.append("SELECT P.");
-        sql.append(PipelineEntity.ID);
+        sql.append("SELECT SP.");
+        sql.append(StreamProcessor.PIPELINE_UUID);
         sql.append(" PIPE_ID, P.");
         sql.append(SQLNameConstants.NAME);
         sql.append(" P_NAME, F.");
@@ -122,18 +122,12 @@ public class StreamTaskServiceImpl extends SystemEntityServiceImpl<StreamTask, F
         sql.append(StreamProcessor.ID);
         sql.append(" = SPF.");
         sql.append(StreamProcessor.FOREIGN_KEY);
-        sql.append(") JOIN ");
-        sql.append(PipelineEntity.TABLE_NAME);
-        sql.append(" P ON (P.");
-        sql.append(PipelineEntity.ID);
-        sql.append(" = SP.");
-        sql.append(PipelineEntity.FOREIGN_KEY);
         sql.append(")");
         sql.append(" WHERE 1=1");
 
         sql.appendPrimitiveValueSetQuery("S." + Stream.STATUS, criteria.obtainFindStreamCriteria().getStatusSet());
-        sql.appendEntityIdSetQuery("P." + BaseEntity.ID,
-                criteria.obtainFindStreamCriteria().getPipelineIdSet());
+        sql.appendDocRefSetQuery("SP." + StreamProcessor.PIPELINE_UUID,
+                criteria.obtainFindStreamCriteria().getPipelineSet());
         sql.appendIncludeExcludeSetQuery("F." + BaseEntity.ID,
                 criteria.obtainFindStreamCriteria().getFeeds());
 
@@ -157,7 +151,7 @@ public class StreamTaskServiceImpl extends SystemEntityServiceImpl<StreamTask, F
         CriteriaLoggingUtil.appendEntityIdSet(items, "streamTaskIdSet", criteria.getStreamTaskIdSet());
         CriteriaLoggingUtil.appendEntityIdSet(items, "streamProcessorFilterIdSet",
                 criteria.getStreamProcessorFilterIdSet());
-        CriteriaLoggingUtil.appendEntityIdSet(items, "pipelineIdSet", criteria.getPipelineIdSet());
+        CriteriaLoggingUtil.appendEntityIdSet(items, "pipelineIdSet", criteria.getPipelineSet());
         CriteriaLoggingUtil.appendDateTerm(items, "createMs", criteria.getCreateMs());
 
         streamStore.appendCriteria(items, criteria.getFindStreamCriteria());
@@ -197,15 +191,11 @@ public class StreamTaskServiceImpl extends SystemEntityServiceImpl<StreamTask, F
                 if (fetchSet.contains(Node.ENTITY_TYPE)) {
                     sql.append(" LEFT JOIN FETCH " + alias + ".node AS node");
                 }
-                if (fetchSet.contains(StreamProcessorFilter.ENTITY_TYPE) || fetchSet.contains(StreamProcessor.ENTITY_TYPE)
-                        || fetchSet.contains(PipelineEntity.ENTITY_TYPE)) {
+                if (fetchSet.contains(StreamProcessorFilter.ENTITY_TYPE) || fetchSet.contains(StreamProcessor.ENTITY_TYPE)) {
                     sql.append(" JOIN FETCH " + alias + ".streamProcessorFilter AS spf");
                 }
-                if (fetchSet.contains(StreamProcessor.ENTITY_TYPE) || fetchSet.contains(PipelineEntity.ENTITY_TYPE)) {
+                if (fetchSet.contains(StreamProcessor.ENTITY_TYPE)) {
                     sql.append(" JOIN FETCH spf.streamProcessor AS sp");
-                }
-                if (fetchSet.contains(PipelineEntity.ENTITY_TYPE)) {
-                    sql.append(" JOIN FETCH sp.pipeline AS p");
                 }
                 if (fetchSet.contains(Stream.ENTITY_TYPE)) {
                     sql.append(" JOIN FETCH " + alias + ".stream AS s");
@@ -231,8 +221,8 @@ public class StreamTaskServiceImpl extends SystemEntityServiceImpl<StreamTask, F
 
             sql.appendEntityIdSetQuery(alias + ".node", criteria.getNodeIdSet());
 
-            sql.appendEntityIdSetQuery(alias + ".streamProcessorFilter.streamProcessor.pipeline",
-                    criteria.obtainPipelineIdSet());
+            sql.appendDocRefSetQuery(alias + ".streamProcessorFilter.streamProcessor.pipelineUuid",
+                    criteria.obtainPipelineSet());
 
             sql.appendEntityIdSetQuery(alias + ".streamProcessorFilter", criteria.getStreamProcessorFilterIdSet());
 
@@ -246,8 +236,8 @@ public class StreamTaskServiceImpl extends SystemEntityServiceImpl<StreamTask, F
 
                 sql.appendPrimitiveValueSetQuery(alias + ".stream.pstatus", findStreamCriteria.getStatusSet());
 
-                sql.appendEntityIdSetQuery(alias + ".streamProcessorFilter.streamProcessor.pipeline",
-                        findStreamCriteria.getPipelineIdSet());
+                sql.appendDocRefSetQuery(alias + ".streamProcessorFilter.streamProcessor.pipelineUuid",
+                        findStreamCriteria.getPipelineSet());
 
                 sql.appendEntityIdSetQuery(alias + ".streamProcessorFilter.streamProcessor",
                         findStreamCriteria.getStreamProcessorIdSet());

@@ -21,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import stroom.node.server.NodeCache;
-import stroom.pipeline.shared.PipelineEntity;
 import stroom.streamstore.server.StreamSource;
 import stroom.streamstore.server.StreamStore;
 import stroom.streamstore.shared.Stream;
@@ -46,8 +45,7 @@ import java.util.Set;
 @Scope(value = StroomScope.TASK)
 public class StreamProcessorTaskHandler extends AbstractTaskHandler<StreamProcessorTask, VoidResult> {
     private static final Logger LOGGER = LoggerFactory.getLogger(StreamProcessorTaskHandler.class);
-    private static final Set<String> FETCH_SET = new HashSet<>(
-            Arrays.asList(StreamProcessor.ENTITY_TYPE, StreamProcessorFilter.ENTITY_TYPE, PipelineEntity.ENTITY_TYPE));
+    private static final Set<String> FETCH_SET = new HashSet<>(Arrays.asList(StreamProcessor.ENTITY_TYPE, StreamProcessorFilter.ENTITY_TYPE));
     @Resource
     private StroomBeanStore beanStore;
     @Resource(name = "cachedStreamProcessorService")
@@ -95,10 +93,10 @@ public class StreamProcessorTaskHandler extends AbstractTaskHandler<StreamProces
                     throw new RuntimeException("No dest processor has been loaded.");
                 }
 
-                if (destStreamProcessor.getPipeline() != null) {
+                if (destStreamProcessor.getPipelineUuid() != null) {
                     taskMonitor.info("Stream {} {} {} {}", stream.getId(),
                             DateUtil.createNormalDateTimeString(stream.getCreateMs()),
-                            destStreamProcessor.getTaskType(), destStreamProcessor.getPipeline().getName());
+                            destStreamProcessor.getTaskType(), destStreamProcessor.getPipelineUuid());
                 } else {
                     taskMonitor.info("Stream {} {} {}", stream.getId(),
                             DateUtil.createNormalDateTimeString(stream.getCreateMs()),

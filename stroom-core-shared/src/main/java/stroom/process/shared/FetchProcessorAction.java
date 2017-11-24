@@ -29,28 +29,28 @@ public class FetchProcessorAction extends Action<ResultList<SharedObject>>
         implements TreeAction<SharedObject>, HasIsConstrained {
     private static final long serialVersionUID = -1773544031158236156L;
 
-    private Long pipelineId;
+    private String pipelineUuid;
     private Set<SharedObject> expandedRows;
 
     public FetchProcessorAction() {
         // Default constructor necessary for GWT serialisation.
     }
 
-    public FetchProcessorAction(final long pipelineId) {
-        this.pipelineId = pipelineId;
+    public FetchProcessorAction(final String pipelineUuid) {
+        this.pipelineUuid = pipelineUuid;
     }
 
     @Override
     public boolean isConstrained() {
-        return pipelineId != null;
+        return pipelineUuid != null;
     }
 
-    public Long getPipelineId() {
-        return pipelineId;
+    public String getPipelineUuid() {
+        return pipelineUuid;
     }
 
-    public void setPipelineId(final Long pipelineId) {
-        this.pipelineId = pipelineId;
+    public void setPipelineUuid(final String pipelineUuid) {
+        this.pipelineUuid = pipelineUuid;
     }
 
     @Override

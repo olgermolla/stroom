@@ -39,7 +39,6 @@ import stroom.entity.shared.PageRequest;
 import stroom.entity.shared.ResultList;
 import stroom.feed.shared.Feed;
 import stroom.node.shared.Volume;
-import stroom.pipeline.shared.PipelineEntity;
 import stroom.security.client.ClientSecurityContext;
 import stroom.streamstore.shared.FindStreamAttributeMapCriteria;
 import stroom.streamstore.shared.Stream;
@@ -340,10 +339,10 @@ public abstract class AbstractStreamListPresenter extends MyPresenterWidget<Data
         //if (securityContext.hasAppPermission(StreamProcessor.ENTITY_TYPE, DocumentPermissionNames.READ)) {
         if (row.getStream().getStreamProcessor() != null) {
             TooltipUtil.addRowData(html, "Stream Processor Id", row.getStream().getStreamProcessor().getId());
-            if (row.getStream().getStreamProcessor().getPipeline() != null) {
-                //if (securityContext.hasAppPermission(PipelineEntity.ENTITY_TYPE, DocumentPermissionNames.READ)) {
+            if (row.getStream().getStreamProcessor().getPipelineUuid() != null) {
+                //if (securityContext.hasAppPermission(PipelineDocument.DOCUMENT_TYPE, DocumentPermissionNames.READ)) {
                 StreamTooltipPresenterUtil.addRowNameString(html, "Stream Processor Pipeline",
-                        row.getStream().getStreamProcessor().getPipeline());
+                        row.getStream().getStreamProcessor().getPipelineUuid());
                 //}
             }
         }
@@ -427,13 +426,13 @@ public abstract class AbstractStreamListPresenter extends MyPresenterWidget<Data
     }
 
     protected void addPipelineColumn() {
-        // if (securityContext.hasAppPermission(PipelineEntity.ENTITY_TYPE, DocumentPermissionNames.READ)) {
+        // if (securityContext.hasAppPermission(PipelineDocument.DOCUMENT_TYPE, DocumentPermissionNames.READ)) {
         getView().addResizableColumn(new Column<StreamAttributeMap, String>(new TextCell()) {
             @Override
             public String getValue(final StreamAttributeMap row) {
                 if (row.getStream().getStreamProcessor() != null) {
-                    if (row.getStream().getStreamProcessor().getPipeline() != null) {
-                        return row.getStream().getStreamProcessor().getPipeline().getDisplayValue();
+                    if (row.getStream().getStreamProcessor().getPipelineUuid() != null) {
+                        return row.getStream().getStreamProcessor().getPipelineUuid();
                     } else {
                         return "Not visible";
                     }
@@ -493,8 +492,8 @@ public abstract class AbstractStreamListPresenter extends MyPresenterWidget<Data
         // if (securityContext.hasAppPermission(StreamProcessor.ENTITY_TYPE, DocumentPermissionNames.READ)) {
         fetchSet.add(StreamProcessor.ENTITY_TYPE);
         // }
-        // if (securityContext.hasAppPermission(PipelineEntity.ENTITY_TYPE, DocumentPermissionNames.READ)) {
-        fetchSet.add(PipelineEntity.ENTITY_TYPE);
+        // if (securityContext.hasAppPermission(PipelineDocument.DOCUMENT_TYPE, DocumentPermissionNames.READ)) {
+//        fetchSet.add(PipelineDocument.DOCUMENT_TYPE);
         // }
 
         // For info ? load up the files

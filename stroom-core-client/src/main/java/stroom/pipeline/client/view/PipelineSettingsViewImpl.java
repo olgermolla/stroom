@@ -28,7 +28,7 @@ import com.gwtplatform.mvp.client.ViewWithUiHandlers;
 import stroom.item.client.ItemListBox;
 import stroom.pipeline.client.presenter.PipelineSettingsPresenter.PipelineSettingsView;
 import stroom.pipeline.client.presenter.PipelineSettingsUiHandlers;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.util.shared.HasReadOnly;
 
 public class PipelineSettingsViewImpl extends ViewWithUiHandlers<PipelineSettingsUiHandlers>
@@ -37,7 +37,7 @@ public class PipelineSettingsViewImpl extends ViewWithUiHandlers<PipelineSetting
     @UiField
     TextArea description;
     @UiField
-    ItemListBox<PipelineEntity.PipelineType> type;
+    ItemListBox<PipelineDocument.PipelineType> type;
     @Inject
     public PipelineSettingsViewImpl(final Binder binder) {
         widget = binder.createAndBindUi(this);
@@ -59,12 +59,12 @@ public class PipelineSettingsViewImpl extends ViewWithUiHandlers<PipelineSetting
     }
 
     @Override
-    public PipelineEntity.PipelineType getType() {
+    public PipelineDocument.PipelineType getType() {
         return type.getSelectedItem();
     }
 
     @Override
-    public void setType(final PipelineEntity.PipelineType type) {
+    public void setType(final PipelineDocument.PipelineType type) {
         this.type.setSelectedItem(type);
     }
 
@@ -74,7 +74,7 @@ public class PipelineSettingsViewImpl extends ViewWithUiHandlers<PipelineSetting
     }
 
     @Override
-    public void addType(final PipelineEntity.PipelineType type) {
+    public void addType(final PipelineDocument.PipelineType type) {
         this.type.addItem(type);
     }
 
@@ -86,7 +86,7 @@ public class PipelineSettingsViewImpl extends ViewWithUiHandlers<PipelineSetting
     }
 
     @UiHandler("type")
-    void onTypeSelection(final SelectionEvent<PipelineEntity.PipelineType> event) {
+    void onTypeSelection(final SelectionEvent<PipelineDocument.PipelineType> event) {
         if (getUiHandlers() != null) {
             getUiHandlers().setDirty(true);
         }

@@ -22,18 +22,17 @@ import com.google.inject.Provider;
 import com.google.web.bindery.event.shared.EventBus;
 import stroom.core.client.ContentManager;
 import stroom.dispatch.client.ClientDispatchAsync;
+import stroom.docstore.client.DocPlugin;
 import stroom.document.client.DocumentPluginEventManager;
-import stroom.entity.client.EntityPlugin;
 import stroom.entity.client.presenter.DocumentEditPresenter;
-import stroom.entity.shared.DocRefUtil;
 import stroom.pipeline.client.event.CreateProcessorEvent;
 import stroom.pipeline.client.presenter.PipelinePresenter;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.process.client.presenter.ProcessorPresenter;
 import stroom.query.api.v2.DocRef;
 import stroom.streamtask.shared.StreamProcessor;
 
-public class PipelinePlugin extends EntityPlugin<PipelineEntity> {
+public class PipelinePlugin extends DocPlugin<PipelineDocument> {
     private final Provider<PipelinePresenter> editorProvider;
 
     @Inject
@@ -52,8 +51,8 @@ public class PipelinePlugin extends EntityPlugin<PipelineEntity> {
 
         registerHandler(getEventBus().addHandler(CreateProcessorEvent.getType(),  event-> {
                 final StreamProcessor streamProcessor = event.getStreamProcessorFilter().getStreamProcessor();
-                final PipelineEntity pipelineEntity = streamProcessor.getPipeline();
-                final DocRef docRef = DocRefUtil.create(pipelineEntity);
+            final String pipelineUuid = streamProcessor.getPipelineUuid();
+            final DocRef docRef = new DocRef(PipelineDocument.DOCUMENT_TYPE, pipelineUuid);
                 // Open the item in the content pane.
                 final PipelinePresenter pipelinePresenter = (PipelinePresenter) open(docRef, true);
                 // Highlight the item in the explorer tree.
@@ -71,6 +70,6 @@ public class PipelinePlugin extends EntityPlugin<PipelineEntity> {
 
     @Override
     public String getType() {
-        return PipelineEntity.ENTITY_TYPE;
+        return PipelineDocument.DOCUMENT_TYPE;
     }
 }

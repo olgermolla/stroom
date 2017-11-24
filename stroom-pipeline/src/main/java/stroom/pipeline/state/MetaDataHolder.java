@@ -20,7 +20,6 @@ package stroom.pipeline.state;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import stroom.feed.MetaMap;
-import stroom.pipeline.shared.PipelineEntity;
 import stroom.streamstore.server.fs.serializable.StreamSourceInputStream;
 import stroom.streamstore.server.fs.serializable.StreamSourceInputStreamProvider;
 import stroom.streamstore.shared.Stream;
@@ -32,9 +31,7 @@ import stroom.util.spring.StroomScope;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
@@ -46,8 +43,6 @@ public class MetaDataHolder extends AbstractHolder<MetaDataHolder> implements Ho
     private static final String CREATED_TIME = "CreatedTime";
     private static final String EFFECTIVE_TIME = "EffectiveTime";
     private static final String PIPELINE = "Pipeline";
-
-    private static final Set<String> FETCH_SET = Collections.singleton(PipelineEntity.ENTITY_TYPE);
 
     private final StreamHolder streamHolder;
     private final StreamProcessorService streamProcessorService;
@@ -152,8 +147,8 @@ public class MetaDataHolder extends AbstractHolder<MetaDataHolder> implements Ho
             final Stream stream = streamHolder.getStream();
             if (stream != null && stream.getStreamProcessor() != null) {
                 final StreamProcessor streamProcessor = streamProcessorService.load(stream.getStreamProcessor(), FETCH_SET);
-                if (streamProcessor != null && streamProcessor.getPipeline() != null) {
-                    return streamProcessor.getPipeline().getName();
+                if (streamProcessor != null && streamProcessor.getPipelineUuid() != null) {
+                    return streamProcessor.getPipelineUuid().getName();
                 }
             }
             return null;

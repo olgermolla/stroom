@@ -20,8 +20,8 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import stroom.entity.server.MockDocumentEntityService;
 import stroom.importexport.server.ImportExportHelper;
-import stroom.pipeline.shared.FindPipelineEntityCriteria;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.FindPipelineDocumentCriteria;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.query.api.v2.DocRef;
 import stroom.util.spring.StroomSpringProfiles;
 
@@ -38,10 +38,10 @@ import java.util.List;
  * You can call clear at any point to clear everything down.
  * </p>
  */
-@Component("pipelineService")
+@Component("pipelineDocumentService")
 @Profile(StroomSpringProfiles.TEST)
-public class MockPipelineService extends MockDocumentEntityService<PipelineEntity, FindPipelineEntityCriteria>
-        implements PipelineService {
+public class MockPipelineService extends MockDocumentEntityService<PipelineDocument, FindPipelineDocumentCriteria>
+        implements PipelineDocumentService {
     public MockPipelineService() {
     }
 
@@ -55,14 +55,14 @@ public class MockPipelineService extends MockDocumentEntityService<PipelineEntit
      * chain. The first pipeline in the chain is at the start of the list and
      * the last pipeline (the one we have supplied) is at the end.
      *
-     * @param pipelineEntity The pipeline that we want to load the inheritance chain for.
+     * @param pipelineDocument The pipeline that we want to load the inheritance chain for.
      * @return The inheritance chain for the supplied pipeline. The supplied
      * pipeline will be the last element in the list.
      */
-    public List<PipelineEntity> getPipelines(final PipelineEntity pipelineEntity) {
+    public List<PipelineDocument> getPipelines(final PipelineDocument pipelineDocument) {
         // Load the pipeline.
-        final List<PipelineEntity> pipelineList = new ArrayList<>();
-        PipelineEntity parent = load(pipelineEntity);
+        final List<PipelineDocument> pipelineList = new ArrayList<>();
+        PipelineDocument parent = load(pipelineDocument);
         pipelineList.add(0, parent);
         while (parent.getParentPipeline() != null) {
             final DocRef parentRef = parent.getParentPipeline();
@@ -73,17 +73,17 @@ public class MockPipelineService extends MockDocumentEntityService<PipelineEntit
     }
 
     @Override
-    public PipelineEntity loadByUuidWithoutUnmarshal(final String uuid) {
+    public PipelineDocument loadByUuidWithoutUnmarshal(final String uuid) {
         return loadByUuid(uuid);
     }
 
     @Override
-    public PipelineEntity saveWithoutMarshal(final PipelineEntity pipelineEntity) {
-        return save(pipelineEntity);
+    public PipelineDocument saveWithoutMarshal(final PipelineDocument pipelineDocument) {
+        return save(pipelineDocument);
     }
 
     @Override
-    public Class<PipelineEntity> getEntityClass() {
-        return PipelineEntity.class;
+    public Class<PipelineDocument> getEntityClass() {
+        return PipelineDocument.class;
     }
 }

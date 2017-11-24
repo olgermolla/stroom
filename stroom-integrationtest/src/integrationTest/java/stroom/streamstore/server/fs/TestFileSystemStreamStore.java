@@ -126,7 +126,7 @@ public class TestFileSystemStreamStore extends AbstractCoreIntegrationTest {
         findStreamCriteria.setEffectivePeriod(PeriodUtil.createYearPeriod(2014));
         findStreamCriteria.obtainFeeds().obtainInclude().add(feed1);
         findStreamCriteria.obtainParentStreamIdSet().add(1L);
-        findStreamCriteria.obtainPipelineIdSet().add(1L);
+        findStreamCriteria.obtainPipelineSet().add(1L);
         findStreamCriteria.obtainStreamIdSet().add(1L);
         findStreamCriteria.obtainStreamProcessorIdSet().add(1L);
         findStreamCriteria.obtainStreamTypeIdSet().add(1L);
@@ -282,7 +282,7 @@ public class TestFileSystemStreamStore extends AbstractCoreIntegrationTest {
         findStreamCriteria.obtainFeeds().obtainInclude().add(feed1);
         findStreamCriteria.setStatusPeriod(PeriodUtil.createToDateWithOffset(System.currentTimeMillis(), 1));
         findStreamCriteria.obtainParentStreamIdSet().add(1L);
-        findStreamCriteria.obtainPipelineIdSet().add(1L);
+        findStreamCriteria.obtainPipelineSet().add(1L);
         findStreamCriteria.setStreamIdRange(new IdRange(0L, 1L));
         findStreamCriteria.obtainStreamProcessorIdSet().add(1L);
         findStreamCriteria.obtainStreamTypeIdSet().add(1L);
@@ -453,7 +453,7 @@ public class TestFileSystemStreamStore extends AbstractCoreIntegrationTest {
     @Test
     public void testDeletePipleineFilters() throws IOException {
         final FindStreamCriteria findStreamCriteria = new FindStreamCriteria();
-        findStreamCriteria.obtainPipelineIdSet().add(1L);
+        findStreamCriteria.obtainPipelineSet().add(1L);
         findStreamCriteria.obtainStreamProcessorIdSet().add(1L);
         streamStore.findDelete(findStreamCriteria);
     }

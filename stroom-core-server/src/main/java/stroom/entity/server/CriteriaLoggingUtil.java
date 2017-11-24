@@ -23,6 +23,7 @@ import event.logging.Term;
 import event.logging.TermCondition;
 import event.logging.util.EventLoggingUtil;
 import stroom.entity.shared.CriteriaSet;
+import stroom.entity.shared.DocRefSet;
 import stroom.entity.shared.EntityIdSet;
 import stroom.entity.shared.IncludeExcludeEntityIdSet;
 import stroom.entity.shared.PageRequest;
@@ -117,6 +118,11 @@ public final class CriteriaLoggingUtil {
     public static void appendEntityIdSet(final List<BaseAdvancedQueryItem> items, final String name,
                                          final EntityIdSet<?> idSet) {
         appendCriteriaSet(items, name, idSet);
+    }
+
+    public static void appendEntityIdSet(final List<BaseAdvancedQueryItem> items, final String name,
+                                         final DocRefSet docRefSet) {
+        appendCriteriaSet(items, name, docRefSet);
     }
 
     public static void appendCriteriaSet(final List<BaseAdvancedQueryItem> items, final String name,

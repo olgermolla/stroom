@@ -20,7 +20,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import stroom.pipeline.server.PipelineTestUtil;
 import stroom.pipeline.shared.PipelineDataMerger;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.pipeline.shared.data.PipelineData;
 import stroom.pipeline.shared.data.PipelineDataUtil;
 import stroom.pipeline.shared.data.PipelineElementType;
@@ -35,15 +35,15 @@ public class TestPipelineFactory extends AbstractProcessIntegrationTest {
 
     @Test
     public void testSingle() throws Exception {
-        final PipelineEntity pipelineEntity = PipelineTestUtil.createBasicPipeline(
+        final PipelineDocument pipelineDocument = PipelineTestUtil.createBasicPipeline(
                 StroomPipelineTestFileUtil.getString("TestPipelineFactory/EventDataPipeline.Pipeline.data.xml"));
 
         final Map<String, PipelineElementType> elementMap = PipelineDataMerger.createElementMap();
         final PipelineDataValidator pipelineDataValidator = new PipelineDataValidator(elementRegistryFactory);
-        pipelineDataValidator.validate(null, pipelineEntity.getPipelineData(), elementMap);
+        pipelineDataValidator.validate(null, pipelineDocument.getPipelineData(), elementMap);
 
         final PipelineDataMerger pipelineDataMerger = new PipelineDataMerger();
-        pipelineDataMerger.merge(pipelineEntity.getPipelineData());
+        pipelineDataMerger.merge(pipelineDocument.getPipelineData());
         final PipelineData mergedPipelineData = pipelineDataMerger.createMergedData();
 
         final PipelineFactory pipelineFactory = new PipelineFactory(elementRegistryFactory, elementRegistryFactory,
@@ -63,8 +63,8 @@ public class TestPipelineFactory extends AbstractProcessIntegrationTest {
         final String data2 = StroomPipelineTestFileUtil.getString("TestPipelineFactory/OverridePipeline.Pipeline.data.xml");
         final String data3 = StroomPipelineTestFileUtil.getString("TestPipelineFactory/CombinedPipeline.Pipeline.data.xml");
 
-        PipelineEntity pipeline1 = PipelineTestUtil.createBasicPipeline(data1);
-        PipelineEntity pipeline2 = PipelineTestUtil.createBasicPipeline(data2);
+        PipelineDocument pipeline1 = PipelineTestUtil.createBasicPipeline(data1);
+        PipelineDocument pipeline2 = PipelineTestUtil.createBasicPipeline(data2);
 
         // Read the pipelines.
         pipeline1 = PipelineTestUtil.savePipeline(pipeline1);
@@ -80,7 +80,7 @@ public class TestPipelineFactory extends AbstractProcessIntegrationTest {
         PipelineDataUtil.normalise(pipelineData3);
 
         // Take a look at the merged config.
-        PipelineEntity pipeline3 = new PipelineEntity();
+        PipelineDocument pipeline3 = new PipelineDocument();
         pipeline3.setPipelineData(pipelineData3);
         pipeline3 = PipelineTestUtil.savePipeline(pipeline3);
 

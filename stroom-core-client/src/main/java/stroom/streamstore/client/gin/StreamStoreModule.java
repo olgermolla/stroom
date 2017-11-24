@@ -24,6 +24,8 @@ import stroom.streamstore.client.presenter.ClassificationWrapperPresenter;
 import stroom.streamstore.client.presenter.ClassificationWrapperPresenter.ClassificationWrapperView;
 import stroom.streamstore.client.presenter.DataPresenter;
 import stroom.streamstore.client.presenter.DataPresenter.DataView;
+import stroom.streamstore.client.presenter.DocRefSetPresenter;
+import stroom.streamstore.client.presenter.DocRefSetPresenter.DocRefSetView;
 import stroom.streamstore.client.presenter.EntityChoicePresenter;
 import stroom.streamstore.client.presenter.EntityChoicePresenter.EntityChoiceView;
 import stroom.streamstore.client.presenter.EntityIdSetPresenter;
@@ -49,6 +51,7 @@ import stroom.streamstore.client.presenter.TextPresenter;
 import stroom.streamstore.client.presenter.TextPresenter.TextView;
 import stroom.streamstore.client.view.ClassificationWrapperViewImpl;
 import stroom.streamstore.client.view.DataViewImpl;
+import stroom.streamstore.client.view.DocRefSetViewImpl;
 import stroom.streamstore.client.view.EntityChoiceViewImpl;
 import stroom.streamstore.client.view.EntityIdSetViewImpl;
 import stroom.streamstore.client.view.IncludeExcludeEntityIdSetPopupViewImpl;
@@ -77,6 +80,7 @@ public class StreamStoreModule extends PluginModule {
         bindPresenterWidget(TextPresenter.class, TextView.class, TextViewImpl.class);
         bindPresenterWidget(StreamTaskPresenter.class, StreamTaskView.class, StreamTaskViewImpl.class);
         bindPresenterWidget(EntityIdSetPresenter.class, EntityIdSetView.class, EntityIdSetViewImpl.class);
+        bindPresenterWidget(DocRefSetPresenter.class, DocRefSetView.class, DocRefSetViewImpl.class);
         bindPresenterWidget(IncludeExcludeEntityIdSetPresenter.class, IncludeExcludeEntityIdSetView.class,
                 IncludeExcludeEntityIdSetViewImpl.class);
         bindPresenterWidget(IncludeExcludeEntityIdSetPopupPresenter.class, IncludeExcludeEntityIdSetPopupView.class,

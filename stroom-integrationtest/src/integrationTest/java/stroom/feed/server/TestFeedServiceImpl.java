@@ -22,9 +22,9 @@ import org.junit.Test;
 import stroom.entity.shared.BaseResultList;
 import stroom.feed.shared.Feed;
 import stroom.feed.shared.FindFeedCriteria;
-import stroom.pipeline.server.PipelineService;
-import stroom.pipeline.shared.FindPipelineEntityCriteria;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.server.PipelineDocumentService;
+import stroom.pipeline.shared.FindPipelineDocumentCriteria;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.streamstore.shared.StreamType;
 import stroom.test.AbstractCoreIntegrationTest;
 import stroom.test.CommonTestScenarioCreator;
@@ -43,7 +43,7 @@ public class TestFeedServiceImpl extends AbstractCoreIntegrationTest {
     @Resource
     private FeedService feedService;
     @Resource
-    private PipelineService pipelineService;
+    private PipelineDocumentService pipelineDocumentService;
     @Resource
     private CommonTestScenarioCreator commonTestScenarioCreator;
 

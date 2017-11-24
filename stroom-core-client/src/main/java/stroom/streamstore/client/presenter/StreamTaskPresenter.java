@@ -62,9 +62,10 @@ public class StreamTaskPresenter extends MyPresenterWidget<StreamTaskPresenter.S
                 final FindStreamCriteria findStreamCriteria = streamTaskListPresenter.getDataProvider()
                         .getCriteria().obtainFindStreamCriteria();
 
-                findStreamTaskCriteria.obtainPipelineIdSet().clear();
-                findStreamTaskCriteria.obtainPipelineIdSet()
-                        .add(row.getKey().get(FindStreamTaskCriteria.SUMMARY_POS_PIPELINE));
+                findStreamTaskCriteria.obtainPipelineSet().clear();
+                // TODO : FIX
+//                findStreamTaskCriteria.obtainPipelineSet()
+//                        .add(row.getKey().get(FindStreamTaskCriteria.SUMMARY_POS_PIPELINE));
 
                 findStreamCriteria.obtainFeeds().clear();
                 findStreamCriteria.obtainFeeds().obtainInclude()

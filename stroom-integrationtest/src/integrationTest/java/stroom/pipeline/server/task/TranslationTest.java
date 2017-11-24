@@ -30,9 +30,9 @@ import stroom.feed.shared.Feed;
 import stroom.feed.shared.FindFeedCriteria;
 import stroom.importexport.server.ImportExportSerializer;
 import stroom.node.server.NodeCache;
-import stroom.pipeline.server.PipelineService;
-import stroom.pipeline.shared.FindPipelineEntityCriteria;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.server.PipelineDocumentService;
+import stroom.pipeline.shared.FindPipelineDocumentCriteria;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.pipeline.shared.SharedElementData;
 import stroom.pipeline.shared.SharedStepData;
 import stroom.pipeline.shared.StepType;
@@ -97,7 +97,7 @@ public abstract class TranslationTest extends AbstractCoreIntegrationTest {
     @Resource
     private FeedService feedService;
     @Resource
-    private PipelineService pipelineService;
+    private PipelineDocumentService pipelineDocumentService;
     @Resource
     private StreamProcessorService streamProcessorService;
     @Resource
@@ -138,13 +138,13 @@ public abstract class TranslationTest extends AbstractCoreIntegrationTest {
     protected void processData(final Path inputDir, final Path outputDir, final boolean reference,
                                final boolean compareOutput, final List<Exception> exceptions) {
         // Create a stream processor for each pipeline.
-        final BaseResultList<PipelineEntity> pipelines = pipelineService.find(new FindPipelineEntityCriteria());
-        for (final PipelineEntity pipelineEntity : pipelines) {
-            final Feed feed = feedService.loadByName(pipelineEntity.getName());
+        final BaseResultList<PipelineDocument> pipelines = pipelineDocumentService.find(new FindPipelineDocumentCriteria());
+        for (final PipelineDocument pipelineDocument : pipelines) {
+            final Feed feed = feedService.loadByName(pipelineDocument.getName());
 
             if (feed != null && feed.isReference() == reference) {
                 StreamProcessor streamProcessor = new StreamProcessor();
-                streamProcessor.setPipeline(pipelineEntity);
+                streamProcessor.setPipelineUuid(pipelineDocument);
                 streamProcessor.setEnabled(true);
                 streamProcessor = streamProcessorService.save(streamProcessor);
 
@@ -346,12 +346,12 @@ public abstract class TranslationTest extends AbstractCoreIntegrationTest {
         final BaseResultList<Feed> feeds = feedService.find(feedCriteria);
         Assert.assertTrue("No feeds found", feeds != null && feeds.size() > 0);
         Assert.assertEquals("Expected 1 feed", 1, feeds.size());
-        final BaseResultList<PipelineEntity> pipelines = pipelineService
-                .find(new FindPipelineEntityCriteria(feedName));
+        final BaseResultList<PipelineDocument> pipelines = pipelineDocumentService
+                .find(new FindPipelineDocumentCriteria(feedName));
         Assert.assertTrue("No pipelines found", pipelines != null && pipelines.size() > 0);
         Assert.assertEquals("Expected 1 pipeline", 1, pipelines.size());
 
-        final PipelineEntity pipelineEntity = pipelines.getFirst();
+        final PipelineDocument pipelineDocument = pipelines.getFirst();
         final Feed feed = feeds.getFirst();
         final FindStreamCriteria streamCriteria = new FindStreamCriteria();
         streamCriteria.obtainFeeds().obtainInclude().add(feed);
@@ -359,7 +359,7 @@ public abstract class TranslationTest extends AbstractCoreIntegrationTest {
         streamCriteria.obtainStreamTypeIdSet().add(StreamType.RAW_REFERENCE);
         streamCriteria.obtainStreamTypeIdSet().add(StreamType.RAW_EVENTS);
         final SteppingTask action = new SteppingTask(UserTokenUtil.INTERNAL_PROCESSING_USER_TOKEN);
-        action.setPipeline(DocRefUtil.create(pipelineEntity));
+        action.setPipeline(DocRefUtil.create(pipelineDocument));
         action.setCriteria(streamCriteria);
 
         SteppingResult response = new SteppingResult();

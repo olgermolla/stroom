@@ -27,7 +27,7 @@ import stroom.entity.shared.EntityServiceFindAction;
 import stroom.entity.shared.SharedDocRef;
 import stroom.explorer.client.presenter.EntityChooser;
 import stroom.feed.shared.Feed;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.pipeline.shared.stepping.GetPipelineForStreamAction;
 import stroom.pipeline.stepping.client.event.BeginPipelineSteppingEvent;
 import stroom.pipeline.stepping.client.presenter.SteppingContentTabPresenter;
@@ -76,7 +76,7 @@ public class PipelineSteppingPlugin extends Plugin implements BeginPipelineStepp
                                 final StreamType childStreamType) {
         final EntityChooser chooser = pipelineSelection.get();
         chooser.setCaption("Choose Pipeline To Step With");
-        chooser.setIncludedTypes(PipelineEntity.ENTITY_TYPE);
+        chooser.setIncludedTypes(PipelineDocument.DOCUMENT_TYPE);
         chooser.setRequiredPermissions(DocumentPermissionNames.READ);
         chooser.addDataSelectionHandler(event -> {
             final DocRef pipeline = chooser.getSelectedEntityReference();

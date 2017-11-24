@@ -25,7 +25,7 @@ import stroom.pipeline.server.factory.Pipeline;
 import stroom.pipeline.server.factory.PipelineDataCache;
 import stroom.pipeline.server.factory.PipelineFactory;
 import stroom.pipeline.server.parser.CombinedParser;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.pipeline.shared.TextConverter;
 import stroom.pipeline.shared.TextConverter.TextConverterType;
 import stroom.pipeline.shared.XSLT;
@@ -60,7 +60,7 @@ public abstract class AbstractAppenderTest extends AbstractProcessIntegrationTes
     @Resource
     private TextConverterService textConverterService;
     @Resource
-    private PipelineService pipelineService;
+    private PipelineDocumentService pipelineDocumentService;
     @Resource
     private PipelineDataCache pipelineDataCache;
     @Resource
@@ -77,26 +77,26 @@ public abstract class AbstractAppenderTest extends AbstractProcessIntegrationTes
         final String stem = dir + name + "_" + type;
         final TextConverter textConverter = createTextConverter(dir + name + ".ds3.xml", name, TextConverterType.DATA_SPLITTER);
         final XSLT filteredXSLT = createXSLT(stem + ".xsl", name);
-        final PipelineEntity pipelineEntity = createPipeline(stem + "_Pipeline.xml", textConverter, filteredXSLT);
-        test(pipelineEntity, dir, name, type, stem + ".out", null);
+        final PipelineDocument pipelineDocument = createPipeline(stem + "_Pipeline.xml", textConverter, filteredXSLT);
+        test(pipelineDocument, dir, name, type, stem + ".out", null);
     }
 
-    private PipelineEntity createPipeline(final String pipelineFile, final TextConverter textConverter,
+    private PipelineDocument createPipeline(final String pipelineFile, final TextConverter textConverter,
                                           final XSLT xslt) {
         // Load the pipeline config.
         final String data = StroomPipelineTestFileUtil.getString(pipelineFile);
-        final PipelineEntity pipelineEntity = PipelineTestUtil.createTestPipeline(pipelineService, data);
+        final PipelineDocument pipelineDocument = PipelineTestUtil.createTestPipeline(pipelineDocumentService, data);
 
         if (textConverter != null) {
-            pipelineEntity.getPipelineData().addProperty(
+            pipelineDocument.getPipelineData().addProperty(
                     PipelineDataUtil.createProperty(CombinedParser.DEFAULT_NAME, "textConverter", textConverter));
         }
         if (xslt != null) {
-            pipelineEntity.getPipelineData()
+            pipelineDocument.getPipelineData()
                     .addProperty(PipelineDataUtil.createProperty("translationFilter", "xslt", xslt));
         }
 
-        return pipelineService.save(pipelineEntity);
+        return pipelineDocumentService.save(pipelineDocument);
     }
 
     private TextConverter createTextConverter(final String textConverterFile, final String name,
@@ -121,7 +121,7 @@ public abstract class AbstractAppenderTest extends AbstractProcessIntegrationTes
 
     // TODO This method is 80% the same in a whole bunch of test classes -
     // refactor some of the repetition out.
-    void test(final PipelineEntity pipelineEntity,
+    void test(final PipelineDocument pipelineDocument,
               final String dir,
               final String name,
               final String type,
@@ -132,7 +132,7 @@ public abstract class AbstractAppenderTest extends AbstractProcessIntegrationTes
         errorReceiver.setErrorReceiver(loggingErrorReceiver);
 
         // Create the parser.
-        final PipelineData pipelineData = pipelineDataCache.get(pipelineEntity);
+        final PipelineData pipelineData = pipelineDataCache.get(pipelineDocument);
         final Pipeline pipeline = pipelineFactory.create(pipelineData);
 
         // Get the input streams.

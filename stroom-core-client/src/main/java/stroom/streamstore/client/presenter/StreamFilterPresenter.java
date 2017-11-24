@@ -21,12 +21,13 @@ import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.MyPresenterWidget;
 import com.gwtplatform.mvp.client.View;
+import stroom.entity.shared.DocRefSet;
 import stroom.entity.shared.EntityIdSet;
 import stroom.entity.shared.IncludeExcludeEntityIdSet;
 import stroom.entity.shared.Period;
 import stroom.feed.shared.Feed;
 import stroom.item.client.ItemListBox;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.streamstore.shared.FindStreamAttributeMapCriteria;
 import stroom.streamstore.shared.FindStreamCriteria;
 import stroom.streamstore.shared.StreamStatus;
@@ -35,7 +36,7 @@ import stroom.widget.customdatebox.client.DateBoxView;
 
 public class StreamFilterPresenter extends MyPresenterWidget<StreamFilterPresenter.StreamFilterView> {
     private final IncludeExcludeEntityIdSetPresenter<Feed> feedPresenter;
-    private final EntityIdSetPresenter pipelinePresenter;
+    private final DocRefSetPresenter pipelinePresenter;
     private final EntityIdSetPresenter streamTypePresenter;
     private final StreamAttributeListPresenter streamAttributeListPresenter;
     private FindStreamAttributeMapCriteria criteria;
@@ -43,7 +44,7 @@ public class StreamFilterPresenter extends MyPresenterWidget<StreamFilterPresent
     @Inject
     public StreamFilterPresenter(final EventBus eventBus,
                                  final IncludeExcludeEntityIdSetPresenter<Feed> feedPresenter,
-                                 final EntityIdSetPresenter pipelinePresenter,
+                                 final DocRefSetPresenter pipelinePresenter,
                                  final EntityIdSetPresenter streamTypePresenter,
                                  final StreamAttributeListPresenter streamAttributeListPresenter,
                                  final StreamTypeUiManager streamTypeUiManager,
@@ -131,8 +132,8 @@ public class StreamFilterPresenter extends MyPresenterWidget<StreamFilterPresent
 
         final IncludeExcludeEntityIdSet<Feed> feeds = findStreamCriteria.obtainFeeds();
         feedPresenter.read(Feed.ENTITY_TYPE, true, feeds);
-        final EntityIdSet<PipelineEntity> pipelineIdSet = findStreamCriteria.obtainPipelineIdSet();
-        pipelinePresenter.read(PipelineEntity.ENTITY_TYPE, true, pipelineIdSet);
+        final DocRefSet pipelineSet = findStreamCriteria.obtainPipelineSet();
+        pipelinePresenter.read(PipelineDocument.DOCUMENT_TYPE, true, pipelineSet);
         final EntityIdSet<StreamType> streamTypeIdSet = findStreamCriteria.obtainStreamTypeIdSet();
         streamTypePresenter.read(StreamType.ENTITY_TYPE, false, streamTypeIdSet);
 
@@ -160,9 +161,9 @@ public class StreamFilterPresenter extends MyPresenterWidget<StreamFilterPresent
             feedPresenter.write(feeds);
         }
         if (pipelinePresenter.isEnabled()) {
-            final EntityIdSet<PipelineEntity> pipelineIdSet = findStreamCriteria.obtainPipelineIdSet();
-            pipelineIdSet.clear();
-            pipelinePresenter.write(pipelineIdSet);
+            final DocRefSet pipelineSet = findStreamCriteria.obtainPipelineSet();
+            pipelineSet.clear();
+            pipelinePresenter.write(pipelineSet);
         }
         final EntityIdSet<StreamType> streamTypeIdSet = findStreamCriteria.obtainStreamTypeIdSet();
         streamTypeIdSet.clear();

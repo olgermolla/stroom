@@ -21,7 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.context.annotation.Scope;
 import stroom.entity.shared.BaseResultList;
 import stroom.entity.shared.EntityIdSet;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.query.api.v2.ExpressionOperator;
 import stroom.query.api.v2.ExpressionTerm;
 import stroom.security.Secured;
@@ -37,6 +37,7 @@ import stroom.util.spring.StroomScope;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +61,7 @@ public class ReprocessDataHandler extends AbstractTaskHandler<ReprocessDataActio
             final FindStreamCriteria criteria = action.getCriteria();
 
             criteria.getFetchSet().add(StreamProcessor.ENTITY_TYPE);
-            criteria.getFetchSet().add(PipelineEntity.ENTITY_TYPE);
+//            criteria.getFetchSet().add(PipelineDocument.ENTITY_TYPE);
             // We only want 1000 streams to be
             // reprocessed at a maximum.
             criteria.obtainPageRequest().setOffset(0L);
@@ -96,7 +97,7 @@ public class ReprocessDataHandler extends AbstractTaskHandler<ReprocessDataActio
                 }
 
                 final List<StreamProcessor> list = new ArrayList<>(streamToProcessorSet.keySet());
-                Collections.sort(list, (o1, o2) -> o1.getPipeline().getName().compareTo(o2.getPipeline().getName()));
+                Collections.sort(list, Comparator.comparing(StreamProcessor::getPipelineUuid));
 
                 for (final StreamProcessor streamProcessor : list) {
                     final EntityIdSet<Stream> streamSet = streamToProcessorSet.get(streamProcessor);
@@ -113,11 +114,11 @@ public class ReprocessDataHandler extends AbstractTaskHandler<ReprocessDataActio
                     queryData.setExpression(operator.build());
 
                     if (!streamProcessor.isEnabled()) {
-                        unableListSB.append(streamProcessor.getPipeline().getName());
+                        unableListSB.append(streamProcessor.getPipelineUuid());
                         unableListSB.append("\n");
 
                     } else {
-                        final String padded = StringUtils.rightPad(streamProcessor.getPipeline().getName(), 40, ' ');
+                        final String padded = StringUtils.rightPad(streamProcessor.getPipelineUuid(), 40, ' ');
                         submittedListSB.append(padded);
                         submittedListSB.append("\t");
                         submittedListSB.append(streamSet.size());

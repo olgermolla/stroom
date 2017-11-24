@@ -22,7 +22,7 @@ import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.value.StringValue;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.pipeline.state.PipelineHolder;
 import stroom.util.spring.StroomScope;
 
@@ -37,12 +37,12 @@ public class PipelineName extends StroomExtensionFunctionCall {
     @Override
     protected Sequence call(final String functionName, final XPathContext context, final Sequence[] arguments)
             throws XPathException {
-        final PipelineEntity pipelineEntity = pipelineHolder.getPipeline();
+        final PipelineDocument pipelineDocument = pipelineHolder.getPipeline();
         String pipelineName;
-        if (pipelineEntity == null) {
+        if (pipelineDocument == null) {
             pipelineName = "";
         } else {
-            pipelineName = pipelineEntity.getName();
+            pipelineName = pipelineDocument.getName();
         }
 
         return StringValue.makeStringValue(pipelineName);

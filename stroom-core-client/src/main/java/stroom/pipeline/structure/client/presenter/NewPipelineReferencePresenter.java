@@ -30,7 +30,7 @@ import stroom.explorer.client.presenter.EntityDropDownPresenter;
 import stroom.explorer.shared.ExplorerNode;
 import stroom.feed.shared.Feed;
 import stroom.item.client.StringListBox;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.pipeline.shared.data.PipelineReference;
 import stroom.query.api.v2.DocRef;
 import stroom.security.shared.DocumentPermissionNames;
@@ -56,7 +56,7 @@ public class NewPipelineReferencePresenter
         this.feedPresenter = feedPresenter;
         this.dispatcher = dispatcher;
 
-        pipelinePresenter.setIncludedTypes(PipelineEntity.ENTITY_TYPE);
+        pipelinePresenter.setIncludedTypes(PipelineDocument.DOCUMENT_TYPE);
         pipelinePresenter.setRequiredPermissions(DocumentPermissionNames.USE);
         feedPresenter.setIncludedTypes(Feed.ENTITY_TYPE);
         feedPresenter.setRequiredPermissions(DocumentPermissionNames.USE);

@@ -20,7 +20,7 @@ package stroom.streamtask.server;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import stroom.entity.server.MockEntityService;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.streamstore.shared.FindStreamCriteria;
 import stroom.streamstore.shared.QueryData;
 import stroom.streamtask.shared.FindStreamProcessorFilterCriteria;
@@ -53,7 +53,7 @@ public class MockStreamProcessorFilterService
     }
 
     @Override
-    public StreamProcessorFilter createNewFilter(final PipelineEntity pipelineEntity,
+    public StreamProcessorFilter createNewFilter(final PipelineDocument pipelineDocument,
                                                  final QueryData findStreamCriteria,
                                                  final boolean enabled,
                                                  final int priority) {

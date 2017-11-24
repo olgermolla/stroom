@@ -25,7 +25,7 @@ import stroom.feed.server.FeedService;
 import stroom.feed.shared.Feed;
 import stroom.feed.shared.FindFeedCriteria;
 import stroom.pipeline.server.ErrorWriterProxy;
-import stroom.pipeline.server.PipelineService;
+import stroom.pipeline.server.PipelineDocumentService;
 import stroom.pipeline.server.errorhandler.ErrorReceiverProxy;
 import stroom.pipeline.server.errorhandler.ErrorStatistics;
 import stroom.pipeline.server.errorhandler.LoggedException;
@@ -40,8 +40,8 @@ import stroom.pipeline.server.filter.SchemaFilter;
 import stroom.pipeline.server.filter.XMLFilter;
 import stroom.pipeline.server.filter.XSLTFilter;
 import stroom.pipeline.server.xsltfunctions.Lookup;
-import stroom.pipeline.shared.FindPipelineEntityCriteria;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.FindPipelineDocumentCriteria;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.pipeline.shared.data.PipelineData;
 import stroom.pipeline.state.FeedHolder;
 import stroom.pipeline.state.MetaData;
@@ -77,8 +77,8 @@ public class HeadlessTranslationTaskHandler extends AbstractTaskHandler<Headless
     private StreamStore streamStore;
     @Resource(name = "cachedFeedService")
     private FeedService feedService;
-    @Resource(name = "cachedPipelineEntityService")
-    private PipelineService pipelineService;
+    @Resource(name = "cachedPipelineDocumentService")
+    private PipelineDocumentService pipelineDocumentService;
     @Resource
     private ContextDataLoader contextDataLoader;
     @Resource
@@ -124,8 +124,8 @@ public class HeadlessTranslationTaskHandler extends AbstractTaskHandler<Headless
             feedHolder.setFeed(feed);
 
             // Set the pipeline so it can be used by a filter if needed.
-            final FindPipelineEntityCriteria findPipelineCriteria = new FindPipelineEntityCriteria(feedName);
-            final BaseResultList<PipelineEntity> pipelines = pipelineService.find(findPipelineCriteria);
+            final FindPipelineDocumentCriteria findPipelineCriteria = new FindPipelineDocumentCriteria(feedName);
+            final BaseResultList<PipelineDocument> pipelines = pipelineDocumentService.find(findPipelineCriteria);
             if (pipelines == null || pipelines.size() == 0) {
                 throw new ProcessException("No pipeline found for feed name '" + feedName + "'");
             }
@@ -133,18 +133,18 @@ public class HeadlessTranslationTaskHandler extends AbstractTaskHandler<Headless
                 throw new ProcessException("More than one pipeline found for feed name '" + feedName + "'");
             }
 
-            final PipelineEntity pipelineEntity = pipelines.getFirst();
-            pipelineHolder.setPipeline(pipelineEntity);
+            final PipelineDocument pipelineDocument = pipelines.getFirst();
+            pipelineHolder.setPipeline(pipelineDocument);
 
             // Create the parser.
-            final PipelineData pipelineData = pipelineDataCache.get(pipelineEntity);
+            final PipelineData pipelineData = pipelineDataCache.get(pipelineDocument);
             final Pipeline pipeline = pipelineFactory.create(pipelineData);
 
             // Find last XSLT filter.
             final XMLFilter lastFilter = getLastFilter(pipeline);
             if (lastFilter == null || !(lastFilter instanceof HasTargets)) {
                 throw new ProcessException(
-                        "No appendable filters can be found in pipeline '" + pipelineEntity.getName() + "'");
+                        "No appendable filters can be found in pipeline '" + pipelineDocument.getName() + "'");
             }
             ((HasTargets) lastFilter).setTarget(task.getHeadlessFilter());
 

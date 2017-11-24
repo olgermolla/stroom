@@ -29,16 +29,16 @@ import stroom.index.shared.Index;
 import stroom.index.shared.IndexField;
 import stroom.index.shared.IndexField.AnalyzerType;
 import stroom.index.shared.IndexFields;
-import stroom.pipeline.server.PipelineService;
+import stroom.pipeline.server.PipelineDocumentService;
 import stroom.pipeline.server.PipelineTestUtil;
 import stroom.pipeline.server.TextConverterService;
 import stroom.pipeline.server.XSLTService;
 import stroom.pipeline.server.parser.CombinedParser;
-import stroom.pipeline.shared.FindPipelineEntityCriteria;
+import stroom.pipeline.shared.FindPipelineDocumentCriteria;
 import stroom.pipeline.shared.FindTextConverterCriteria;
 import stroom.pipeline.shared.FindXSLTCriteria;
-import stroom.pipeline.shared.PipelineEntity;
-import stroom.pipeline.shared.PipelineEntity.PipelineType;
+import stroom.pipeline.shared.PipelineDocument;
+import stroom.pipeline.shared.PipelineDocument.PipelineType;
 import stroom.pipeline.shared.TextConverter;
 import stroom.pipeline.shared.TextConverter.TextConverterType;
 import stroom.pipeline.shared.XSLT;
@@ -105,7 +105,7 @@ public final class StoreCreationTool {
     @Resource
     private XSLTService xsltService;
     @Resource
-    private PipelineService pipelineService;
+    private PipelineDocumentService pipelineDocumentService;
     @Resource
     private CommonTestScenarioCreator commonTestScenarioCreator;
     @Resource
@@ -182,7 +182,7 @@ public final class StoreCreationTool {
             referenceFeed = feedService.save(referenceFeed);
 
             // Setup the pipeline.
-            final PipelineEntity pipeline = getReferencePipeline(feedName, referenceFeed, textConverterType,
+            final PipelineDocument pipeline = getReferencePipeline(feedName, referenceFeed, textConverterType,
                     textConverterLocation, xsltLocation);
 
             // Setup the stream processor.
@@ -192,7 +192,7 @@ public final class StoreCreationTool {
             if (streamProcessor == null) {
                 streamProcessor = new StreamProcessor();
                 streamProcessor.setEnabled(true);
-                streamProcessor.setPipeline(pipeline);
+                streamProcessor.setPipelineUuid(pipeline);
                 streamProcessor = streamProcessorService.save(streamProcessor);
             }
 
@@ -213,11 +213,11 @@ public final class StoreCreationTool {
         return referenceFeed;
     }
 
-    private PipelineEntity getReferencePipeline(final String feedName, final Feed referenceFeed,
+    private PipelineDocument getReferencePipeline(final String feedName, final Feed referenceFeed,
                                                 final TextConverterType textConverterType, final Path textConverterLocation, final Path xsltLocation) {
         // Setup the pipeline.
         final String data = StreamUtil.fileToString(referenceDataPipeline);
-        final PipelineEntity pipeline = getPipeline(feedName, data);
+        final PipelineDocument pipeline = getPipeline(feedName, data);
 
         // Setup the text converter.
         final TextConverter textConverter = getTextConverter(feedName, textConverterType, textConverterLocation);
@@ -231,7 +231,7 @@ public final class StoreCreationTool {
         pipeline.getPipelineData().addProperty(PipelineDataUtil.createProperty("storeAppender", "feed", referenceFeed));
         pipeline.getPipelineData()
                 .addProperty(PipelineDataUtil.createProperty("storeAppender", "streamType", StreamType.REFERENCE));
-        return pipelineService.save(pipeline);
+        return pipelineDocumentService.save(pipeline);
     }
 
     /**
@@ -337,14 +337,14 @@ public final class StoreCreationTool {
         }
 
         // Add context data loader pipeline.
-        final PipelineEntity contextPipeline = getContextPipeline(eventFeed, contextTextConverterType,
+        final PipelineDocument contextPipeline = getContextPipeline(eventFeed, contextTextConverterType,
                 contextTextConverterLocation, contextXsltLocation);
         pipelineReferences.add(PipelineDataUtil.createReference("translationFilter", "pipelineReference",
                 contextPipeline, eventFeed, StreamType.CONTEXT.getName()));
 
         // Add reference data loader pipelines.
         if (referenceFeeds != null && referenceFeeds.size() > 0) {
-            final PipelineEntity referenceLoaderPipeline = getReferenceLoaderPipeline();
+            final PipelineDocument referenceLoaderPipeline = getReferenceLoaderPipeline();
             for (final Feed refFeed : referenceFeeds) {
                 pipelineReferences.add(PipelineDataUtil.createReference("translationFilter", "pipelineReference",
                         referenceLoaderPipeline, refFeed, StreamType.REFERENCE.getName()));
@@ -352,7 +352,7 @@ public final class StoreCreationTool {
         }
 
         // Create the event pipeline.
-        final PipelineEntity pipeline = getEventPipeline(eventFeed, translationTextConverterType,
+        final PipelineDocument pipeline = getEventPipeline(eventFeed, translationTextConverterType,
                 translationTextConverterLocation, translationXsltLocation, flatteningXsltLocation, pipelineReferences);
 
         StreamProcessor streamProcessor = streamProcessorService.find(new FindStreamProcessorCriteria(pipeline))
@@ -361,7 +361,7 @@ public final class StoreCreationTool {
             // Setup the stream processor.
             streamProcessor = new StreamProcessor();
             streamProcessor.setEnabled(true);
-            streamProcessor.setPipeline(pipeline);
+            streamProcessor.setPipelineUuid(pipeline);
             streamProcessor = streamProcessorService.save(streamProcessor);
 
             // Setup the stream processor filter.
@@ -382,7 +382,7 @@ public final class StoreCreationTool {
         return eventFeed;
     }
 
-    private PipelineEntity getContextPipeline(final Feed feed, final TextConverterType textConverterType,
+    private PipelineDocument getContextPipeline(final Feed feed, final TextConverterType textConverterType,
                                               final Path contextTextConverterLocation, final Path contextXsltLocation) {
         final TextConverter contextTextConverter = getTextConverter(feed.getName() + "_CONTEXT", textConverterType,
                 contextTextConverterLocation);
@@ -390,7 +390,7 @@ public final class StoreCreationTool {
 
         // Setup the pipeline.
         final String data = StreamUtil.fileToString(contextDataPipeline);
-        final PipelineEntity pipeline = getPipeline(feed.getName() + "_CONTEXT", data);
+        final PipelineDocument pipeline = getPipeline(feed.getName() + "_CONTEXT", data);
 
         if (contextTextConverter != null) {
             pipeline.getPipelineData().addProperty(PipelineDataUtil.createProperty(CombinedParser.DEFAULT_NAME,
@@ -401,18 +401,18 @@ public final class StoreCreationTool {
                     .addProperty(PipelineDataUtil.createProperty("translationFilter", "xslt", contextXSLT));
         }
 
-        return pipelineService.save(pipeline);
+        return pipelineDocumentService.save(pipeline);
     }
 
-    private PipelineEntity getReferenceLoaderPipeline() {
+    private PipelineDocument getReferenceLoaderPipeline() {
         // Setup the pipeline.
         return getPipeline("ReferenceLoader", StreamUtil.fileToString(referenceLoaderPipeline));
     }
 
-    private PipelineEntity getEventPipeline(final Feed feed, final TextConverterType textConverterType,
+    private PipelineDocument getEventPipeline(final Feed feed, final TextConverterType textConverterType,
                                             final Path translationTextConverterLocation, final Path translationXsltLocation,
                                             final Path flatteningXsltLocation, final List<PipelineReference> pipelineReferences) {
-        final PipelineEntity pipeline = getPipeline(feed.getName(), StreamUtil.fileToString(eventDataPipeline));
+        final PipelineDocument pipeline = getPipeline(feed.getName(), StreamUtil.fileToString(eventDataPipeline));
 
         // Setup the text converter.
         final TextConverter translationTextConverter = getTextConverter(feed.getName(), textConverterType,
@@ -470,11 +470,11 @@ public final class StoreCreationTool {
         //
         // pipeline.setData(data);
 
-        return pipelineService.save(pipeline);
+        return pipelineDocumentService.save(pipeline);
     }
 
-    private PipelineEntity getIndexingPipeline(final Index index, final Path xsltLocation) {
-        final PipelineEntity pipeline = getPipeline(index.getName(), StreamUtil.fileToString(indexingPipeline));
+    private PipelineDocument getIndexingPipeline(final Index index, final Path xsltLocation) {
+        final PipelineDocument pipeline = getPipeline(index.getName(), StreamUtil.fileToString(indexingPipeline));
 
         // Setup the xslt.
         final XSLT xslt = getXSLT(index.getName(), xsltLocation);
@@ -503,7 +503,7 @@ public final class StoreCreationTool {
         //
         // pipeline.setData(data);
 
-        return pipelineService.save(pipeline);
+        return pipelineDocumentService.save(pipeline);
     }
 
     private TextConverter getTextConverter(final String name, final TextConverterType textConverterType,
@@ -564,16 +564,16 @@ public final class StoreCreationTool {
         return xslt;
     }
 
-    private PipelineEntity getPipeline(final String name, final String data) {
+    private PipelineDocument getPipeline(final String name, final String data) {
         // Try and find an existing pipeline first.
-        final FindPipelineEntityCriteria findPipelineCriteria = new FindPipelineEntityCriteria();
+        final FindPipelineDocumentCriteria findPipelineCriteria = new FindPipelineDocumentCriteria();
         findPipelineCriteria.getName().setString(name);
-        final BaseResultList<PipelineEntity> list = pipelineService.find(findPipelineCriteria);
+        final BaseResultList<PipelineDocument> list = pipelineDocumentService.find(findPipelineCriteria);
         if (list != null && list.size() > 0) {
             return list.getFirst();
         }
 
-        return PipelineTestUtil.createTestPipeline(pipelineService,name, "Description " + name,
+        return PipelineTestUtil.createTestPipeline(pipelineDocumentService,name, "Description " + name,
                 data);
     }
 
@@ -588,7 +588,7 @@ public final class StoreCreationTool {
         final Index index = commonTestScenarioCreator.createIndex(name, createIndexFields());
 
         // Create the indexing pipeline.
-        final PipelineEntity pipeline = getIndexingPipeline(index, translationXsltLocation);
+        final PipelineDocument pipeline = getIndexingPipeline(index, translationXsltLocation);
 
         StreamProcessor streamProcessor = streamProcessorService.find(new FindStreamProcessorCriteria(pipeline))
                 .getFirst();
@@ -596,7 +596,7 @@ public final class StoreCreationTool {
             // Setup the stream processor.
             streamProcessor = new StreamProcessor();
             streamProcessor.setEnabled(true);
-            streamProcessor.setPipeline(pipeline);
+            streamProcessor.setPipelineUuid(pipeline);
             streamProcessor = streamProcessorService.save(streamProcessor);
 
             // Setup the stream processor filter.
@@ -634,8 +634,8 @@ public final class StoreCreationTool {
         return indexFields;
     }
 
-    public PipelineEntity getSearchResultPipeline(final String name, final Path xsltLocation) {
-        final PipelineEntity pipeline = getPipeline(name, StreamUtil.fileToString(searchExtractionPipeline));
+    public PipelineDocument getSearchResultPipeline(final String name, final Path xsltLocation) {
+        final PipelineDocument pipeline = getPipeline(name, StreamUtil.fileToString(searchExtractionPipeline));
         pipeline.setPipelineType(PipelineType.SEARCH_EXTRACTION.getDisplayValue());
 
         // Setup the xslt.
@@ -658,6 +658,6 @@ public final class StoreCreationTool {
         //
         // pipeline.setData(data);
 
-        return pipelineService.save(pipeline);
+        return pipelineDocumentService.save(pipeline);
     }
 }

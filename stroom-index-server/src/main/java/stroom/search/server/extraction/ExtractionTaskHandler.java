@@ -23,7 +23,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import stroom.feed.server.FeedService;
 import stroom.feed.shared.Feed;
-import stroom.pipeline.server.PipelineService;
+import stroom.pipeline.server.PipelineDocumentService;
 import stroom.pipeline.server.errorhandler.ErrorReceiver;
 import stroom.pipeline.server.errorhandler.ErrorReceiverProxy;
 import stroom.pipeline.server.errorhandler.ProcessException;
@@ -33,7 +33,7 @@ import stroom.pipeline.server.factory.PipelineDataCache;
 import stroom.pipeline.server.factory.PipelineFactory;
 import stroom.pipeline.server.filter.IdEnrichmentFilter;
 import stroom.pipeline.server.filter.XMLFilter;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.pipeline.shared.data.PipelineData;
 import stroom.pipeline.state.CurrentUserHolder;
 import stroom.pipeline.state.FeedHolder;
@@ -71,7 +71,7 @@ public class ExtractionTaskHandler {
     private final PipelineHolder pipelineHolder;
     private final ErrorReceiverProxy errorReceiverProxy;
     private final PipelineFactory pipelineFactory;
-    private final PipelineService pipelineService;
+    private final PipelineDocumentService pipelineDocumentService;
     private final PipelineDataCache pipelineDataCache;
     private final TaskMonitor taskMonitor;
     private final SecurityContext securityContext;
@@ -87,7 +87,7 @@ public class ExtractionTaskHandler {
                           final PipelineHolder pipelineHolder,
                           final ErrorReceiverProxy errorReceiverProxy,
                           final PipelineFactory pipelineFactory,
-                          @Named("cachedPipelineEntityService") final PipelineService pipelineService,
+                          @Named("cachedPipelineDocumentService") final PipelineDocumentService pipelineDocumentService,
                           final PipelineDataCache pipelineDataCache,
                           final TaskMonitor taskMonitor,
                           final SecurityContext securityContext) {
@@ -99,7 +99,7 @@ public class ExtractionTaskHandler {
         this.pipelineHolder = pipelineHolder;
         this.errorReceiverProxy = errorReceiverProxy;
         this.pipelineFactory = pipelineFactory;
-        this.pipelineService = pipelineService;
+        this.pipelineDocumentService = pipelineDocumentService;
         this.pipelineDataCache = pipelineDataCache;
         this.taskMonitor = taskMonitor;
         this.securityContext = securityContext;
@@ -129,13 +129,13 @@ public class ExtractionTaskHandler {
             final DocRef pipelineRef = task.getPipelineRef();
 
             // Get the translation that will be used to display results.
-            final PipelineEntity pipelineEntity = pipelineService.loadByUuid(pipelineRef.getUuid());
-            if (pipelineEntity == null) {
+            final PipelineDocument pipelineDocument = pipelineDocumentService.loadByUuid(pipelineRef.getUuid());
+            if (pipelineDocument == null) {
                 throw new SearchException("Unable to find result pipeline: " + pipelineRef);
             }
 
             // Create the parser.
-            final PipelineData pipelineData = pipelineDataCache.get(pipelineEntity);
+            final PipelineData pipelineData = pipelineDataCache.get(pipelineDocument);
             final Pipeline pipeline = pipelineFactory.create(pipelineData);
             if (pipeline == null) {
                 throw new SearchException("Unable to create parser for pipeline: " + pipelineRef);
@@ -159,7 +159,7 @@ public class ExtractionTaskHandler {
             searchResultOutputFilter.setup(task.getFieldIndexes(), task.getResultReceiver());
 
             // Process the stream segments.
-            processData(task.getStreamId(), task.getEventIds(), pipelineEntity, pipeline);
+            processData(task.getStreamId(), task.getEventIds(), pipelineDocument, pipeline);
 
         } catch (final Exception e) {
             error(e.getMessage(), e);
@@ -179,7 +179,7 @@ public class ExtractionTaskHandler {
      * Extract data from the segment list. Returns the total number of segments
      * that were successfully extracted.
      */
-    private long processData(final long streamId, final long[] eventIds, final PipelineEntity pipelineEntity,
+    private long processData(final long streamId, final long[] eventIds, final PipelineDocument pipelineDocument,
                              final Pipeline pipeline) {
         final ErrorReceiver errorReceiver = (severity, location, elementId, message, e) -> {
             task.getErrorReceiver().log(severity, location, elementId, message, e);
@@ -208,7 +208,7 @@ public class ExtractionTaskHandler {
                         }
 
                         // Now try and extract the data.
-                        extract(pipelineEntity, pipeline, streamSource, segmentInputStream, count);
+                        extract(pipelineDocument, pipeline, streamSource, segmentInputStream, count);
 
                     } catch (final Exception e) {
                         // Something went wrong extracting data from this
@@ -234,7 +234,7 @@ public class ExtractionTaskHandler {
     /**
      * We do this one by one
      */
-    private void extract(final PipelineEntity pipelineEntity, final Pipeline pipeline, final StreamSource source,
+    private void extract(final PipelineDocument pipelineDocument, final Pipeline pipeline, final StreamSource source,
                          final RASegmentInputStream segmentInputStream, final long count) {
         if (source != null && segmentInputStream != null) {
             if (LOGGER.isDebugEnabled()) {
@@ -247,7 +247,7 @@ public class ExtractionTaskHandler {
                 final Feed feed = feedService.load(source.getStream().getFeed());
                 feedHolder.setFeed(feed);
                 streamHolder.setStream(source.getStream());
-                pipelineHolder.setPipeline(pipelineEntity);
+                pipelineHolder.setPipeline(pipelineDocument);
 
                 final InputStream inputStream = new IgnoreCloseInputStream(segmentInputStream);
 

@@ -26,9 +26,8 @@ import stroom.entity.server.SystemEntityServiceImpl;
 import stroom.entity.server.util.HqlBuilder;
 import stroom.entity.server.util.StroomEntityManager;
 import stroom.entity.shared.BaseResultList;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.security.Secured;
-import stroom.streamstore.shared.FindStreamCriteria;
 import stroom.streamstore.shared.QueryData;
 import stroom.streamtask.shared.FindStreamProcessorCriteria;
 import stroom.streamtask.shared.FindStreamProcessorFilterCriteria;
@@ -83,18 +82,18 @@ public class StreamProcessorFilterServiceImpl
     }
 
     @Override
-    public StreamProcessorFilter createNewFilter(final PipelineEntity pipelineEntity,
+    public StreamProcessorFilter createNewFilter(final PipelineDocument pipelineDocument,
                                                  final QueryData queryData,
                                                  final boolean enabled,
                                                  final int priority) {
 
         // First see if we can find a stream processor for this pipeline.
-        final FindStreamProcessorCriteria findStreamProcessorCriteria = new FindStreamProcessorCriteria(pipelineEntity);
+        final FindStreamProcessorCriteria findStreamProcessorCriteria = new FindStreamProcessorCriteria(pipelineDocument);
         final List<StreamProcessor> list = streamProcessorService.find(findStreamProcessorCriteria);
         StreamProcessor processor = null;
         if (list == null || list.size() == 0) {
             // We couldn't find one so create a new one.
-            processor = new StreamProcessor(pipelineEntity);
+            processor = new StreamProcessor(pipelineDocument.getUuid());
             processor.setEnabled(enabled);
             processor = streamProcessorService.save(processor);
         } else {
@@ -142,7 +141,7 @@ public class StreamProcessorFilterServiceImpl
         CriteriaLoggingUtil.appendRangeTerm(items, "priorityRange", criteria.getPriorityRange());
         CriteriaLoggingUtil.appendRangeTerm(items, "lastPollPeriod", criteria.getLastPollPeriod());
         CriteriaLoggingUtil.appendEntityIdSet(items, "streamProcessorIdSet", criteria.getStreamProcessorIdSet());
-        CriteriaLoggingUtil.appendEntityIdSet(items, "pipelineIdSet", criteria.getPipelineIdSet());
+        CriteriaLoggingUtil.appendEntityIdSet(items, "pipelineIdSet", criteria.getPipelineSet());
         CriteriaLoggingUtil.appendBooleanTerm(items, "streamProcessorEnabled", criteria.getStreamProcessorEnabled());
         CriteriaLoggingUtil.appendBooleanTerm(items, "streamProcessorFilterEnabled",
                 criteria.getStreamProcessorFilterEnabled());
@@ -167,15 +166,15 @@ public class StreamProcessorFilterServiceImpl
         protected void appendBasicJoin(final HqlBuilder sql, final String alias, final Set<String> fetchSet) {
             super.appendBasicJoin(sql, alias, fetchSet);
             if (fetchSet != null) {
-                if (fetchSet.contains(StreamProcessor.ENTITY_TYPE) || fetchSet.contains(PipelineEntity.ENTITY_TYPE)) {
+                if (fetchSet.contains(StreamProcessor.ENTITY_TYPE)) {
                     sql.append(" INNER JOIN FETCH ");
                     sql.append(alias);
                     sql.append(".streamProcessor as sp");
                 }
-                if (fetchSet.contains(PipelineEntity.ENTITY_TYPE)) {
-                    sql.append(" INNER JOIN FETCH ");
-                    sql.append("sp.pipeline");
-                }
+//                if (fetchSet.contains(PipelineDocument.DOCUMENT_TYPE)) {
+//                    sql.append(" INNER JOIN FETCH ");
+//                    sql.append("sp.pipeline");
+//                }
             }
         }
 
@@ -191,7 +190,7 @@ public class StreamProcessorFilterServiceImpl
 
             sql.appendRangeQuery(alias + ".streamProcessorFilterTracker.lastPollMs", criteria.getLastPollPeriod());
 
-            sql.appendEntityIdSetQuery(alias + ".streamProcessor.pipeline", criteria.getPipelineIdSet());
+            sql.appendDocRefSetQuery(alias + ".streamProcessor.pipeline", criteria.getPipelineSet());
 
             sql.appendEntityIdSetQuery(alias + ".streamProcessor", criteria.getStreamProcessorIdSet());
 

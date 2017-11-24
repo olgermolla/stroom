@@ -24,7 +24,7 @@ import stroom.entity.client.presenter.ContentCallback;
 import stroom.entity.client.presenter.DocumentEditTabPresenter;
 import stroom.entity.client.presenter.LinkTabPanelView;
 import stroom.entity.client.presenter.TabContentProvider;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.pipeline.structure.client.presenter.PipelineStructurePresenter;
 import stroom.process.client.presenter.ProcessorPresenter;
 import stroom.security.client.ClientSecurityContext;
@@ -35,14 +35,14 @@ import stroom.streamtask.shared.StreamProcessor;
 import stroom.widget.tab.client.presenter.TabData;
 import stroom.widget.tab.client.presenter.TabDataImpl;
 
-public class PipelinePresenter extends DocumentEditTabPresenter<LinkTabPanelView, PipelineEntity> {
+public class PipelinePresenter extends DocumentEditTabPresenter<LinkTabPanelView, PipelineDocument> {
     public static final TabData SETTINGS = new TabDataImpl("Settings");
     public static final TabData DATA = new TabDataImpl("Data");
     public static final TabData STRUCTURE = new TabDataImpl("Structure");
     public static final TabData PROCESSORS = new TabDataImpl("Processors");
     public static final TabData TASKS = new TabDataImpl("Active Tasks");
 
-    private final TabContentProvider<PipelineEntity> tabContentProvider = new TabContentProvider<>();
+    private final TabContentProvider<PipelineDocument> tabContentProvider = new TabContentProvider<>();
     private ProcessorPresenter processorPresenter;
 
     private boolean hasManageProcessorsPermission;
@@ -98,13 +98,13 @@ public class PipelinePresenter extends DocumentEditTabPresenter<LinkTabPanelView
     }
 
     @Override
-    public void onRead(final PipelineEntity pipelineEntity) {
-        tabContentProvider.read(pipelineEntity);
+    public void onRead(final PipelineDocument pipelineDocument) {
+        tabContentProvider.read(pipelineDocument);
     }
 
     @Override
-    protected void onWrite(final PipelineEntity pipelineEntity) {
-        tabContentProvider.write(pipelineEntity);
+    protected void onWrite(final PipelineDocument pipelineDocument) {
+        tabContentProvider.write(pipelineDocument);
     }
 
     @Override
@@ -124,6 +124,6 @@ public class PipelinePresenter extends DocumentEditTabPresenter<LinkTabPanelView
 
     @Override
     public String getType() {
-        return PipelineEntity.ENTITY_TYPE;
+        return PipelineDocument.DOCUMENT_TYPE;
     }
 }

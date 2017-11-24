@@ -16,7 +16,7 @@
 
 package stroom.pipeline.server;
 
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.query.api.v2.DocRef;
 
 public final class PipelineTestUtil {
@@ -25,39 +25,39 @@ public final class PipelineTestUtil {
     private PipelineTestUtil() {
     }
 
-    public static PipelineEntity createBasicPipeline(final String data) {
-        PipelineEntity pipelineEntity = new PipelineEntity();
-        pipelineEntity.setName("test");
-        pipelineEntity.setDescription("test");
+    public static PipelineDocument createBasicPipeline(final String data) {
+        PipelineDocument pipelineDocument = new PipelineDocument();
+        pipelineDocument.setName("test");
+        pipelineDocument.setDescription("test");
         if (data != null) {
-            pipelineEntity.setData(data);
-            pipelineEntity = pipelineMarshaller.unmarshal(pipelineEntity);
+            pipelineDocument.setData(data);
+            pipelineDocument = pipelineMarshaller.unmarshal(pipelineDocument);
         }
-        return pipelineEntity;
+        return pipelineDocument;
     }
 
 
-    public static PipelineEntity createTestPipeline(final PipelineService pipelineService, final String data) {
-        return createTestPipeline(pipelineService, "test", "test", data);
+    public static PipelineDocument createTestPipeline(final PipelineDocumentService pipelineDocumentService, final String data) {
+        return createTestPipeline(pipelineDocumentService, "test", "test", data);
     }
 
-    public static PipelineEntity createTestPipeline(final PipelineService pipelineService, final String name,
+    public static PipelineDocument createTestPipeline(final PipelineDocumentService pipelineDocumentService, final String name,
                                                     final String description, final String data) {
-        PipelineEntity pipelineEntity = pipelineService.create(name);
-        pipelineEntity.setName(name);
-        pipelineEntity.setDescription(description);
+        PipelineDocument pipelineDocument = pipelineDocumentService.create(name);
+        pipelineDocument.setName(name);
+        pipelineDocument.setDescription(description);
         if (data != null) {
-            pipelineEntity.setData(data);
-            pipelineEntity = pipelineMarshaller.unmarshal(pipelineEntity);
+            pipelineDocument.setData(data);
+            pipelineDocument = pipelineMarshaller.unmarshal(pipelineDocument);
         }
-        return pipelineService.save(pipelineEntity);
+        return pipelineDocumentService.save(pipelineDocument);
     }
 
-    public static PipelineEntity loadPipeline(final PipelineEntity pipeline) {
+    public static PipelineDocument loadPipeline(final PipelineDocument pipeline) {
         return pipelineMarshaller.unmarshal(pipeline);
     }
 
-    public static PipelineEntity savePipeline(final PipelineEntity pipeline) {
+    public static PipelineDocument savePipeline(final PipelineDocument pipeline) {
         return pipelineMarshaller.marshal(pipeline);
     }
 }

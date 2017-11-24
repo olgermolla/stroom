@@ -25,11 +25,9 @@ import stroom.alert.client.event.ConfirmEvent;
 import stroom.dispatch.client.ClientDispatchAsync;
 import stroom.entity.client.presenter.HasRead;
 import stroom.entity.shared.*;
-import stroom.feed.shared.Feed;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.docstore.shared.DocRefUtil;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.process.shared.CreateProcessorAction;
-import stroom.process.shared.LoadEntityIdSetAction;
-import stroom.process.shared.SetId;
 import stroom.process.shared.StreamProcessorFilterRow;
 import stroom.process.shared.StreamProcessorRow;
 import stroom.query.api.v2.DocRef;
@@ -41,7 +39,6 @@ import stroom.ruleset.client.presenter.EditExpressionPresenter;
 import stroom.streamstore.shared.*;
 import stroom.streamtask.shared.StreamProcessorFilter;
 import stroom.svg.client.SvgPresets;
-import stroom.util.shared.SharedMap;
 import stroom.util.shared.SharedObject;
 import stroom.widget.button.client.ButtonView;
 import stroom.widget.customdatebox.client.ClientDateUtil;
@@ -56,13 +53,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProcessorPresenter extends MyPresenterWidget<ProcessorPresenter.ProcessorView>
-        implements HasRead<BaseEntity> {
+        implements HasRead<Object> {
     private final ProcessorListPresenter processorListPresenter;
     private final EditExpressionPresenter editExpressionPresenter;
     private final ExpressionTreePresenter expressionPresenter;
     private final ClientDispatchAsync dispatcher;
 
-    private PipelineEntity pipelineEntity;
+    private PipelineDocument pipelineDocument;
     private SharedObject selectedProcessor;
     private ButtonView addButton;
     private ButtonView editButton;
@@ -91,17 +88,17 @@ public class ProcessorPresenter extends MyPresenterWidget<ProcessorPresenter.Pro
     }
 
     @Override
-    public void read(final BaseEntity entity) {
+    public void read(final Object entity) {
         processorListPresenter.read(entity);
-        if (entity instanceof PipelineEntity) {
-            this.pipelineEntity = (PipelineEntity) entity;
+        if (entity instanceof PipelineDocument) {
+            this.pipelineDocument = (PipelineDocument) entity;
         }
     }
 
     public void setAllowUpdate(final boolean allowUpdate) {
         this.allowUpdate = allowUpdate;
 
-        if (this.pipelineEntity != null && allowUpdate) {
+        if (this.pipelineDocument != null && allowUpdate) {
             createButtons();
         }
 
@@ -281,13 +278,13 @@ public class ProcessorPresenter extends MyPresenterWidget<ProcessorPresenter.Pro
     }
 
     private void addProcessor() {
-        if (pipelineEntity != null) {
+        if (pipelineDocument != null) {
             addOrEditProcessor(null);
         }
     }
 
     private void editProcessor() {
-        if (pipelineEntity != null && selectedProcessor != null) {
+        if (pipelineDocument != null && selectedProcessor != null) {
             if (selectedProcessor instanceof StreamProcessorFilterRow) {
                 final StreamProcessorFilterRow streamProcessorFilterRow = (StreamProcessorFilterRow) selectedProcessor;
                 final StreamProcessorFilter filter = streamProcessorFilterRow.getEntity();
@@ -391,7 +388,7 @@ public class ProcessorPresenter extends MyPresenterWidget<ProcessorPresenter.Pro
 
         } else {
             // Now create the processor filter using the find stream criteria.
-            dispatcher.exec(new CreateProcessorAction(DocRefUtil.create(pipelineEntity), queryData, false, 10)).onSuccess(result -> {
+            dispatcher.exec(new CreateProcessorAction(DocRefUtil.create(pipelineDocument), queryData, false, 10)).onSuccess(result -> {
                 refresh(result);
                 HidePopupEvent.fire(ProcessorPresenter.this, editExpressionPresenter);
             });

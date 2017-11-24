@@ -28,7 +28,7 @@ import stroom.entity.server.util.PreparedStatementUtil;
 import stroom.entity.server.util.SqlBuilder;
 import stroom.entity.shared.Period;
 import stroom.feed.shared.Feed;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.query.api.v2.ExpressionItem;
 import stroom.query.api.v2.ExpressionOperator;
 import stroom.query.api.v2.ExpressionTerm;
@@ -187,7 +187,7 @@ public class DataRetentionTransactionHelper {
         }
         if (includePipeline) {
             sql.leftOuterJoin(StreamProcessor.TABLE_NAME, "SP", "S", StreamProcessor.FOREIGN_KEY, "SP", StreamProcessor.ID);
-            sql.leftOuterJoin(PipelineEntity.TABLE_NAME, "p", "SP", PipelineEntity.FOREIGN_KEY, "p", PipelineEntity.ID);
+            sql.leftOuterJoin(PipelineDocument.TABLE_NAME, "p", "SP", PipelineDocument.FOREIGN_KEY, "p", PipelineDocument.ID);
         }
 
         sql.append(" WHERE 1=1");

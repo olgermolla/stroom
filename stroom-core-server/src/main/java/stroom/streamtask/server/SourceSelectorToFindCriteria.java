@@ -174,7 +174,7 @@ public class SourceSelectorToFindCriteria {
             /*
             originalCriteria.obtainStreamProcessorIdSet().copyFrom(newCriteria.obtainStreamProcessorIdSet());
             originalCriteria.obtainFeeds().copyFrom(newCriteria.obtainFeeds());
-            originalCriteria.obtainPipelineIdSet().copyFrom(newCriteria.obtainPipelineIdSet());
+            originalCriteria.obtainPipelineSet().copyFrom(newCriteria.obtainPipelineSet());
             originalCriteria.obtainStreamTypeIdSet().copyFrom(newCriteria.obtainStreamTypeIdSet());
             originalCriteria.obtainStreamIdSet().copyFrom(newCriteria.obtainStreamIdSet());
             originalCriteria.obtainStatusSet().copyFrom(newCriteria.obtainStatusSet());

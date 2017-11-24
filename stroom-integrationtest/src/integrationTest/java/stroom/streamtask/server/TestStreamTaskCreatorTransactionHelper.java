@@ -60,7 +60,7 @@ public class TestStreamTaskCreatorTransactionHelper extends AbstractCoreIntegrat
                 streamTaskCreatorTransactionHelper.runSelectStreamQuery(null, findStreamCriteria, 0, 100).size());
 
         findStreamCriteria = new FindStreamCriteria();
-        findStreamCriteria.obtainPipelineIdSet().add(1L);
+        findStreamCriteria.obtainPipelineSet().add(1L);
         Assert.assertEquals(0,
                 streamTaskCreatorTransactionHelper.runSelectStreamQuery(null, findStreamCriteria, 0, 100).size());
     }

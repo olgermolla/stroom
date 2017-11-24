@@ -30,7 +30,7 @@ import stroom.feed.shared.Feed;
 import stroom.pipeline.server.MockPipelineService;
 import stroom.pipeline.server.errorhandler.ErrorReceiver;
 import stroom.pipeline.server.errorhandler.FatalErrorReceiver;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.pipeline.shared.data.PipelineReference;
 import stroom.refdata.impl.MockReferenceDataLoader;
 import stroom.streamstore.shared.StreamType;
@@ -51,14 +51,14 @@ public class TestReferenceData extends StroomUnitTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestReferenceData.class);
 
     private final MockFeedService feedService = new MockFeedService();
-    private final MockPipelineService pipelineService = new MockPipelineService();
+    private final MockPipelineService pipelineDocumentService = new MockPipelineService();
 
     @Test
     public void testSimple() {
         final Feed feed1 = feedService.create("TEST_FEED_1");
         final Feed feed2 = feedService.create("TEST_FEED_2");
-        final PipelineEntity pipeline1 = pipelineService.create("TEST_PIPELINE_1");
-        final PipelineEntity pipeline2 = pipelineService.create("TEST_PIPELINE_2");
+        final PipelineDocument pipeline1 = pipelineDocumentService.create("TEST_PIPELINE_1");
+        final PipelineDocument pipeline2 = pipelineDocumentService.create("TEST_PIPELINE_2");
 
         final List<PipelineReference> pipelineReferences = new ArrayList<>();
         pipelineReferences.add(new PipelineReference(DocRefUtil.create(pipeline1), DocRefUtil.create(feed1),
@@ -95,7 +95,7 @@ public class TestReferenceData extends StroomUnitTest {
         }
     }
 
-    private void addData(final ReferenceData referenceData, final PipelineEntity pipeline, final String[] mapNames) {
+    private void addData(final ReferenceData referenceData, final PipelineDocument pipeline, final String[] mapNames) {
         MapStoreBuilder mapStoreBuilder = new MapStoreBuilderImpl(null);
         for (final String mapName : mapNames) {
             mapStoreBuilder.setEvents(mapName, "user1", getEventsFromString("1111"), false);
@@ -147,10 +147,10 @@ public class TestReferenceData extends StroomUnitTest {
         feed1.setReference(true);
         feed1 = feedService.save(feed1);
 
-        final PipelineEntity pipelineEntity = new PipelineEntity();
+        final PipelineDocument pipelineDocument = new PipelineDocument();
         final List<PipelineReference> pipelineReferences = new ArrayList<>();
 
-        pipelineReferences.add(new PipelineReference(DocRefUtil.create(pipelineEntity),
+        pipelineReferences.add(new PipelineReference(DocRefUtil.create(pipelineDocument),
                 DocRefUtil.create(feed1), StreamType.REFERENCE.getName()));
 
         final ErrorReceiver errorReceiver = new FatalErrorReceiver();
@@ -170,7 +170,7 @@ public class TestReferenceData extends StroomUnitTest {
             final MapStoreBuilder mapStoreBuilder = new MapStoreBuilderImpl(null);
             mapStoreBuilder.setEvents("CARD_NUMBER_TO_PF_NUMBER", "011111", getEventsFromString("091111"), false);
             mapStoreBuilder.setEvents("NUMBER_TO_SID", "091111", getEventsFromString("user1"), false);
-            referenceData.put(new MapStoreCacheKey(DocRefUtil.create(pipelineEntity), 0), mapStoreBuilder.getMapStore());
+            referenceData.put(new MapStoreCacheKey(DocRefUtil.create(pipelineDocument), 0), mapStoreBuilder.getMapStore());
 
             Assert.assertEquals("091111", getStringFromEvents(referenceData.getValue(pipelineReferences, errorReceiver,
                     0, "CARD_NUMBER_TO_PF_NUMBER", "011111")));
@@ -190,10 +190,10 @@ public class TestReferenceData extends StroomUnitTest {
         feed1.setReference(true);
         feed1 = feedService.save(feed1);
 
-        final PipelineEntity pipelineEntity = new PipelineEntity();
+        final PipelineDocument pipelineDocument = new PipelineDocument();
         final List<PipelineReference> pipelineReferences = new ArrayList<>();
 
-        pipelineReferences.add(new PipelineReference(DocRefUtil.create(pipelineEntity),
+        pipelineReferences.add(new PipelineReference(DocRefUtil.create(pipelineDocument),
                 DocRefUtil.create(feed1), StreamType.REFERENCE.getName()));
 
         final ErrorReceiver errorReceiver = new FatalErrorReceiver();
@@ -213,7 +213,7 @@ public class TestReferenceData extends StroomUnitTest {
             final MapStoreBuilder mapStoreBuilder = new MapStoreBuilderImpl(null);
             mapStoreBuilder.setEvents("IP_TO_LOC", new Range<>(2L, 30L), getEventsFromString("here"), false);
             mapStoreBuilder.setEvents("IP_TO_LOC", new Range<>(500L, 2000L), getEventsFromString("there"), false);
-            referenceData.put(new MapStoreCacheKey(DocRefUtil.create(pipelineEntity), 0), mapStoreBuilder.getMapStore());
+            referenceData.put(new MapStoreCacheKey(DocRefUtil.create(pipelineDocument), 0), mapStoreBuilder.getMapStore());
 
             Assert.assertEquals("here", getStringFromEvents(
                     referenceData.getValue(pipelineReferences, errorReceiver, 0, "IP_TO_LOC", "10")));

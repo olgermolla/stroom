@@ -17,6 +17,7 @@
 package stroom.entity.server.util;
 
 import stroom.entity.shared.CriteriaSet;
+import stroom.entity.shared.DocRefSet;
 import stroom.entity.shared.EntityIdSet;
 import stroom.entity.shared.HasPrimitiveValue;
 
@@ -81,6 +82,28 @@ public class SqlBuilder extends AbstractSqlBuilder {
 
         boolean added = false;
         for (final Long item : set) {
+            if (item != null) {
+                arg(item);
+                append(",");
+                added = true;
+            }
+        }
+
+        if (added) {
+            // Remove the last comma.
+            setLength(length() - 1);
+        }
+
+        append(")");
+    }
+
+    @Override
+    void appendDocRefSet(final String fieldOrEntity, final DocRefSet set) {
+        append(fieldOrEntity);
+        append(" IN (");
+
+        boolean added = false;
+        for (final String item : set) {
             if (item != null) {
                 arg(item);
                 append(",");

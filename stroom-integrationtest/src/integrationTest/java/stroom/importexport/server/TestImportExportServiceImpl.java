@@ -27,8 +27,8 @@ import stroom.explorer.server.ExplorerService;
 import stroom.explorer.shared.ExplorerConstants;
 import stroom.feed.server.FeedService;
 import stroom.feed.shared.Feed;
-import stroom.pipeline.server.PipelineService;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.server.PipelineDocumentService;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.query.api.v2.DocRef;
 import stroom.resource.server.ResourceStore;
 import stroom.test.AbstractCoreIntegrationTest;
@@ -45,7 +45,7 @@ public class TestImportExportServiceImpl extends AbstractCoreIntegrationTest {
     @Resource
     private ResourceStore resourceStore;
     @Resource
-    private PipelineService pipelineService;
+    private PipelineDocumentService pipelineDocumentService;
     @Resource
     private FeedService feedService;
     @Resource
@@ -69,16 +69,16 @@ public class TestImportExportServiceImpl extends AbstractCoreIntegrationTest {
 
         Assert.assertEquals(5, explorerNodeService.getDescendants(system).size());
 
-        final DocRef tran1Ref = explorerService.create(PipelineEntity.ENTITY_TYPE, FileSystemTestUtil.getUniqueTestString(), folder1, null);
-        final PipelineEntity tran1 = pipelineService.readDocument(tran1Ref);
+        final DocRef tran1Ref = explorerService.create(PipelineDocument.DOCUMENT_TYPE, FileSystemTestUtil.getUniqueTestString(), folder1, null);
+        final PipelineDocument tran1 = pipelineDocumentService.readDocument(tran1Ref);
         tran1.setDescription("Description");
-        pipelineService.save(tran1);
+        pipelineDocumentService.save(tran1);
 
-        final DocRef tran2Ref = explorerService.create(PipelineEntity.ENTITY_TYPE, FileSystemTestUtil.getUniqueTestString(), folder2, null);
-        PipelineEntity tran2 = pipelineService.readDocument(tran2Ref);
+        final DocRef tran2Ref = explorerService.create(PipelineDocument.DOCUMENT_TYPE, FileSystemTestUtil.getUniqueTestString(), folder2, null);
+        PipelineDocument tran2 = pipelineDocumentService.readDocument(tran2Ref);
         tran2.setDescription("Description");
         tran2.setParentPipeline(DocRefUtil.create(tran1));
-        tran2 = pipelineService.save(tran2);
+        tran2 = pipelineDocumentService.save(tran2);
 
         final DocRef referenceFeedRef = explorerService.create(Feed.ENTITY_TYPE, FileSystemTestUtil.getUniqueTestString(), folder1, null);
         final Feed referenceFeed = feedService.readDocument(referenceFeedRef);
@@ -98,7 +98,7 @@ public class TestImportExportServiceImpl extends AbstractCoreIntegrationTest {
         feedService.save(eventFeedChild);
 
 //        final int startFolderSize = commonTestControl.countEntity(Folder.class);
-        final int startTranslationSize = commonTestControl.countEntity(PipelineEntity.class);
+        final int startTranslationSize = commonTestControl.countEntity(PipelineDocument.class);
         final int startFeedSize = commonTestControl.countEntity(Feed.class);
 
         final ResourceKey file = resourceStore.createTempFile("Export.zip");
@@ -114,8 +114,8 @@ public class TestImportExportServiceImpl extends AbstractCoreIntegrationTest {
         importExportService.exportConfig(docRefs, resourceStore.getTempFile(exportConfig), null);
 
         // Delete it and check
-        pipelineService.delete(tran2);
-        Assert.assertEquals(startTranslationSize - 1, commonTestControl.countEntity(PipelineEntity.class));
+        pipelineDocumentService.delete(tran2);
+        Assert.assertEquals(startTranslationSize - 1, commonTestControl.countEntity(PipelineDocument.class));
 
         feedService.delete(eventFeed);
         Assert.assertEquals(startFeedSize - 1, commonTestControl.countEntity(Feed.class));
@@ -134,7 +134,7 @@ public class TestImportExportServiceImpl extends AbstractCoreIntegrationTest {
 
 //        Assert.assertEquals(startFolderSize, commonTestControl.countEntity(Folder.class));
         Assert.assertEquals(startFeedSize, commonTestControl.countEntity(Feed.class));
-        Assert.assertEquals(startTranslationSize, commonTestControl.countEntity(PipelineEntity.class));
+        Assert.assertEquals(startTranslationSize, commonTestControl.countEntity(PipelineDocument.class));
 
         final ResourceKey fileChild = resourceStore.createTempFile("ExportChild.zip");
         final DocRefs criteriaChild = new DocRefs();

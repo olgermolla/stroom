@@ -25,7 +25,7 @@ import stroom.feed.shared.Feed;
 import stroom.io.StreamCloser;
 import stroom.pipeline.server.EncodingSelection;
 import stroom.pipeline.server.LocationFactoryProxy;
-import stroom.pipeline.server.PipelineService;
+import stroom.pipeline.server.PipelineDocumentService;
 import stroom.pipeline.server.StreamLocationFactory;
 import stroom.pipeline.server.errorhandler.ErrorReceiverProxy;
 import stroom.pipeline.server.errorhandler.LoggedException;
@@ -34,7 +34,7 @@ import stroom.pipeline.server.errorhandler.ProcessException;
 import stroom.pipeline.server.factory.Pipeline;
 import stroom.pipeline.server.factory.PipelineDataCache;
 import stroom.pipeline.server.factory.PipelineFactory;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.pipeline.shared.StepLocation;
 import stroom.pipeline.shared.StepType;
 import stroom.pipeline.shared.SteppingResult;
@@ -79,7 +79,7 @@ import java.util.Set;
 
 @TaskHandlerBean(task = SteppingTask.class)
 @Scope(value = StroomScope.TASK)
-@Secured(PipelineEntity.STEPPING_PERMISSION)
+@Secured(PipelineDocument.STEPPING_PERMISSION)
 public class SteppingTaskHandler extends AbstractTaskHandler<SteppingTask, SteppingResult> {
     private static final Logger LOGGER = LoggerFactory.getLogger(SteppingTaskHandler.class);
 
@@ -113,7 +113,7 @@ public class SteppingTaskHandler extends AbstractTaskHandler<SteppingTask, Stepp
     @Resource
     private SteppingController controller;
     @Resource
-    private PipelineService pipelineService;
+    private PipelineDocumentService pipelineDocumentService;
     @Resource
     private PipelineFactory pipelineFactory;
     @Resource
@@ -605,14 +605,14 @@ public class SteppingTaskHandler extends AbstractTaskHandler<SteppingTask, Stepp
     private Pipeline createPipeline(final SteppingController controller, final Feed feed) {
         if (pipeline == null) {
             // Set the pipeline so it can be used by a filter if needed.
-            final PipelineEntity pipelineEntity = pipelineService
+            final PipelineDocument pipelineDocument = pipelineDocumentService
                     .loadByUuid(controller.getRequest().getPipeline().getUuid());
 
             feedHolder.setFeed(feed);
-            pipelineHolder.setPipeline(pipelineEntity);
+            pipelineHolder.setPipeline(pipelineDocument);
             pipelineContext.setStepping(true);
 
-            final PipelineData pipelineData = pipelineDataCache.get(pipelineEntity);
+            final PipelineData pipelineData = pipelineDataCache.get(pipelineDocument);
             pipeline = pipelineFactory.create(pipelineData, controller);
 
             // Don't return a pipeline if we cannot step with it.

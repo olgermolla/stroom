@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 import stroom.index.server.IndexShardManager;
 import stroom.index.shared.FindIndexShardCriteria;
 import stroom.pipeline.server.task.PipelineStreamProcessor;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.streamstore.server.tools.StoreCreationTool;
 import stroom.streamtask.server.StreamProcessorTaskExecutor;
 import stroom.test.CommonTranslationTest;
@@ -99,11 +99,11 @@ public class CommonIndexingTest {
         return 1;
     }
 
-    public PipelineEntity getSearchResultPipeline() {
+    public PipelineDocument getSearchResultPipeline() {
         return storeCreationTool.getSearchResultPipeline("Search result", SEARCH_RESULT_XSLT);
     }
 
-    public PipelineEntity getSearchResultTextPipeline() {
+    public PipelineDocument getSearchResultTextPipeline() {
         return storeCreationTool.getSearchResultPipeline("Search result text", SEARCH_RESULT_TEXT_XSLT);
     }
 }

@@ -17,7 +17,7 @@
 package stroom.pipeline.server;
 
 import org.junit.Assert;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.streamstore.server.StreamSource;
 import stroom.streamstore.server.StreamStore;
 import stroom.streamstore.server.fs.serializable.RASegmentInputStream;
@@ -36,13 +36,13 @@ public abstract class AbstractStreamAppenderTest extends AbstractAppenderTest {
     @Resource
     private StreamStore streamStore;
 
-    void test(final PipelineEntity pipelineEntity,
+    void test(final PipelineDocument pipelineDocument,
               final String dir,
               final String name,
               final String type,
               final String outputReference,
               final String encoding) throws Exception {
-        super.test(pipelineEntity, dir, name, type, outputReference, encoding);
+        super.test(pipelineDocument, dir, name, type, outputReference, encoding);
 
         final List<Stream> streams = streamStore.find(new FindStreamCriteria());
         Assert.assertEquals(1, streams.size());

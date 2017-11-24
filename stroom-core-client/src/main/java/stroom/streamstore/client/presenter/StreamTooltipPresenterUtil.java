@@ -33,4 +33,11 @@ public class StreamTooltipPresenterUtil {
             TooltipUtil.addRowData(html, label, namedEntity.getName() + " (" + namedEntity.getId() + ")");
         }
     }
+
+    public static final void addRowNameString(final StringBuilder html, final String label,
+                                              final String uuid) {
+        if (uuid != null) {
+            TooltipUtil.addRowData(html, label, uuid);
+        }
+    }
 }

@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import stroom.dictionary.server.DictionaryService;
 import stroom.feed.shared.Feed;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.ruleset.shared.DataRetentionRule;
 import stroom.streamstore.shared.Stream;
 import stroom.streamstore.shared.StreamAttributeConstants;
@@ -113,7 +113,7 @@ public class StreamAttributeMapRetentionRuleDecorator {
             }
             final StreamProcessor streamProcessor = stream.getStreamProcessor();
             if (streamProcessor != null) {
-                final PipelineEntity pipeline = streamProcessor.getPipeline();
+                final PipelineDocument pipeline = streamProcessor.getPipelineUuid();
                 if (pipeline != null) {
                     attributeMap.put(StreamFields.PIPELINE, pipeline.getName());
                 }

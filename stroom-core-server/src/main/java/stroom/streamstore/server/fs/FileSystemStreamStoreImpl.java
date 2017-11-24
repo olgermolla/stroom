@@ -49,8 +49,8 @@ import stroom.feed.shared.FindFeedCriteria;
 import stroom.node.server.NodeCache;
 import stroom.node.server.VolumeService;
 import stroom.node.shared.Volume;
-import stroom.pipeline.server.PipelineService;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.server.PipelineDocumentService;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.query.api.v2.DocRef;
 import stroom.query.api.v2.ExpressionTerm;
 import stroom.security.Secured;
@@ -125,7 +125,7 @@ public class FileSystemStreamStoreImpl implements FileSystemStreamStore {
     private final StroomDatabaseInfo stroomDatabaseInfo;
     private final NodeCache nodeCache;
     private final StreamProcessorService streamProcessorService;
-    private final PipelineService pipelineService;
+    private final PipelineDocumentService pipelineDocumentService;
     private final FeedService feedService;
     private final StreamTypeService streamTypeService;
     private final VolumeService volumeService;
@@ -173,7 +173,7 @@ public class FileSystemStreamStoreImpl implements FileSystemStreamStore {
                               final StroomDatabaseInfo stroomDatabaseInfo,
                               final NodeCache nodeCache,
                               @Named("cachedStreamProcessorService") final StreamProcessorService streamProcessorService,
-                              @Named("cachedPipelineEntityService") final PipelineService pipelineService,
+                              @Named("cachedPipelineDocumentService") final PipelineDocumentService pipelineDocumentService,
                               @Named("cachedFeedService") final FeedService feedService,
                               @Named("cachedStreamTypeService") final StreamTypeService streamTypeService,
                               final VolumeService volumeService,
@@ -183,7 +183,7 @@ public class FileSystemStreamStoreImpl implements FileSystemStreamStore {
         this.stroomDatabaseInfo = stroomDatabaseInfo;
         this.nodeCache = nodeCache;
         this.streamProcessorService = streamProcessorService;
-        this.pipelineService = pipelineService;
+        this.pipelineDocumentService = pipelineDocumentService;
         this.feedService = feedService;
         this.streamTypeService = streamTypeService;
         this.volumeService = volumeService;
@@ -775,10 +775,7 @@ public class FileSystemStreamStoreImpl implements FileSystemStreamStore {
             if (originalCriteria.getFetchSet().contains(StreamProcessor.ENTITY_TYPE)) {
                 stream.setStreamProcessor(streamProcessorService.load(stream.getStreamProcessor()));
                 if (stream.getStreamProcessor() != null) {
-                    if (originalCriteria.getFetchSet().contains(PipelineEntity.ENTITY_TYPE)) {
-                        stream.getStreamProcessor()
-                                .setPipeline(pipelineService.load(stream.getStreamProcessor().getPipeline()));
-                    }
+                        stream.getStreamProcessor() .setPipelineUuid(stream.getStreamProcessor().getPipelineUuid());
                 }
             }
             if (originalCriteria.getFetchSet().contains(StreamType.ENTITY_TYPE)) {
@@ -916,7 +913,7 @@ public class FileSystemStreamStoreImpl implements FileSystemStreamStore {
             chooseIndex = false;
         }
 
-        if (chooseIndex && criteria.getPipelineIdSet() != null && criteria.getPipelineIdSet().getSet().size() == 1) {
+        if (chooseIndex && criteria.getPipelineSet() != null && criteria.getPipelineSet().getSet().size() == 1) {
             chooseIndex = false;
             indexToUse = MYSQL_INDEX_STRM_FK_STRM_PROC_ID_CRT_MS_IDX;
         }
@@ -973,7 +970,7 @@ public class FileSystemStreamStoreImpl implements FileSystemStreamStore {
     }
 
     private void appendStreamProcessorJoin(final FindStreamCriteria queryCriteria, final SqlBuilder sql) {
-        if (queryCriteria.getPipelineIdSet() != null && queryCriteria.getPipelineIdSet().isConstrained()) {
+        if (queryCriteria.getPipelineSet() != null && queryCriteria.getPipelineSet().isConstrained()) {
             sql.append(" JOIN ");
             sql.append(StreamProcessor.TABLE_NAME);
             sql.append(" SP ON (SP.");
@@ -1071,7 +1068,7 @@ public class FileSystemStreamStoreImpl implements FileSystemStreamStore {
         sql.appendEntityIdSetQuery("S." + StreamType.FOREIGN_KEY, criteria.getStreamTypeIdSet());
         sql.appendIncludeExcludeSetQuery("S." + Feed.FOREIGN_KEY, criteria.getFeeds());
 
-        sql.appendEntityIdSetQuery("SP." + PipelineEntity.FOREIGN_KEY, criteria.getPipelineIdSet());
+        sql.appendDocRefSetQuery("SP." + StreamProcessor.PIPELINE_UUID, criteria.getPipelineSet());
         sql.appendEntityIdSetQuery("S." + StreamProcessor.FOREIGN_KEY, criteria.getStreamProcessorIdSet());
     }
 
@@ -1438,7 +1435,7 @@ public class FileSystemStreamStoreImpl implements FileSystemStreamStore {
         CriteriaLoggingUtil.appendEntityIdSet(items, "streamProcessorIdSet",
                 findStreamCriteria.getStreamProcessorIdSet());
         CriteriaLoggingUtil.appendIncludeExcludeEntityIdSet(items, "feeds", findStreamCriteria.getFeeds());
-        CriteriaLoggingUtil.appendEntityIdSet(items, "pipelineIdSet", findStreamCriteria.getPipelineIdSet());
+        CriteriaLoggingUtil.appendEntityIdSet(items, "pipelineIdSet", findStreamCriteria.getPipelineSet());
         CriteriaLoggingUtil.appendEntityIdSet(items, "streamTypeIdSet", findStreamCriteria.getStreamTypeIdSet());
         CriteriaLoggingUtil.appendEntityIdSet(items, "streamIdSet", findStreamCriteria.getStreamIdSet());
         CriteriaLoggingUtil.appendCriteriaSet(items, "statusSet", findStreamCriteria.getStatusSet());

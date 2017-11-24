@@ -23,14 +23,14 @@ import org.springframework.context.annotation.Scope;
 import stroom.feed.shared.Feed;
 import stroom.io.StreamCloser;
 import stroom.pipeline.server.EncodingSelection;
-import stroom.pipeline.server.PipelineService;
+import stroom.pipeline.server.PipelineDocumentService;
 import stroom.pipeline.server.errorhandler.ErrorReceiverIdDecorator;
 import stroom.pipeline.server.errorhandler.ErrorReceiverProxy;
 import stroom.pipeline.server.errorhandler.StoredErrorReceiver;
 import stroom.pipeline.server.factory.Pipeline;
 import stroom.pipeline.server.factory.PipelineDataCache;
 import stroom.pipeline.server.factory.PipelineFactory;
-import stroom.pipeline.shared.PipelineEntity;
+import stroom.pipeline.shared.PipelineDocument;
 import stroom.pipeline.shared.data.PipelineData;
 import stroom.pipeline.state.FeedHolder;
 import stroom.streamstore.shared.Stream;
@@ -57,8 +57,8 @@ public class ContextDataLoadTaskHandler extends AbstractTaskHandler<ContextDataL
     private FeedHolder feedHolder;
     @Resource
     private ErrorReceiverProxy errorReceiverProxy;
-    @Resource(name = "cachedPipelineEntityService")
-    private PipelineService pipelineService;
+    @Resource(name = "cachedPipelineDocumentService")
+    private PipelineDocumentService pipelineDocumentService;
     @Resource
     private PipelineDataCache pipelineDataCache;
 
@@ -96,8 +96,8 @@ public class ContextDataLoadTaskHandler extends AbstractTaskHandler<ContextDataL
                 }
 
                 // Create the parser.
-                final PipelineEntity pipelineEntity = pipelineService.loadByUuid(task.getContextPipeline().getUuid());
-                final PipelineData pipelineData = pipelineDataCache.get(pipelineEntity);
+                final PipelineDocument pipelineDocument = pipelineDocumentService.loadByUuid(task.getContextPipeline().getUuid());
+                final PipelineData pipelineData = pipelineDataCache.get(pipelineDocument);
                 final Pipeline pipeline = pipelineFactory.create(pipelineData);
 
                 feedHolder.setFeed(feed);
